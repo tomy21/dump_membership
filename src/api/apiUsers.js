@@ -1,10 +1,10 @@
-import { apiClient } from "./apiClient";
+import { apiClient } from './apiClient';
 
 export const apiUsers = {
   register: async (userData) => {
     try {
       const response = await apiClient.post(
-        "v01/member/api/auth/register",
+        'v01/member/api/auth/register',
         userData
       );
       return response.data;
@@ -12,9 +12,22 @@ export const apiUsers = {
       throw error.response.data;
     }
   },
-};
 
-export const getUserById = {
+  getData: async (page, limit) => {
+    try {
+      const response = await apiClient.get(`/v01/member/api/auth/user`, {
+        params: {
+          page,
+          limit,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      throw error.response.data;
+    }
+  },
+
   userById: async (idUser) => {
     try {
       const response = await apiClient.get(
@@ -25,9 +38,7 @@ export const getUserById = {
       throw error.response.data;
     }
   },
-};
 
-export const verifikasiUsers = {
   verifikasiPin: async ({ memberUserId, pinVerifikasi }) => {
     try {
       const response = await apiClient.post(`/v01/member/api/auth/verifikasi`, {
@@ -36,17 +47,15 @@ export const verifikasiUsers = {
       });
       return response.data;
     } catch (error) {
-      console.error("API error:", error.response ? error.response.data : error);
+      console.error('API error:', error.response ? error.response.data : error);
       throw error.response ? error.response.data : error;
     }
   },
-};
 
-export const loginUsers = {
   login: async (userData) => {
     try {
       const response = await apiClient.post(
-        "/v01/member/api/auth/login",
+        '/v01/member/api/auth/login',
         userData
       );
       return response.data;
@@ -54,21 +63,16 @@ export const loginUsers = {
       throw error.response.data;
     }
   },
-};
 
-export const logoutUsers = {
   logout: async () => {
     try {
-      const response = await apiClient.post("/v01/member/api/auth/logout");
+      const response = await apiClient.post('/v01/member/api/auth/logout');
       return response.data;
     } catch (error) {
       throw error.response.data;
     }
   },
-};
 
-// History
-export const historyMembers = {
   getHistory: async (idUsers, page, limit) => {
     try {
       const response = await apiClient.get(
@@ -82,20 +86,23 @@ export const historyMembers = {
       throw error.response.data;
     }
   },
-};
 
-// get All UsersMember
-export const getAllMembers = {
-  getData: async (page, limit) => {
+  getRole: async () => {
     try {
-      const response = await apiClient.get(`/v01/member/api/auth/user`, {
-        params: {
-          page,
-          limit,
-        },
-      });
-
+      const response = await apiClient.get(`/v01/member/api/auth/role`);
       return response.data;
+    } catch (error) {
+      throw error.response.data;
+    }
+  },
+
+  getRoleById: async (id) => {
+    try {
+      const response = await apiClient.get(
+        `/v01/member/api/auth/rolesDetail/${id}`
+      );
+      console.log('roleId', response);
+      return response.data.data;
     } catch (error) {
       throw error.response.data;
     }

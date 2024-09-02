@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import Cookies from "js-cookie";
-import Loading from "./Loading";
-import { MdOutlineRefresh } from "react-icons/md";
-import { loginUsers } from "../api/apiUsers";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Cookies from 'js-cookie';
+import Loading from './Loading';
+import { MdOutlineRefresh } from 'react-icons/md';
+import { apiUsers } from '../api/apiUsers';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [captcha, setCaptcha] = useState("");
-  const [inputCaptcha, setInputCaptcha] = useState("");
+  const [captcha, setCaptcha] = useState('');
+  const [inputCaptcha, setInputCaptcha] = useState('');
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    identifier: "",
-    password: "",
+    identifier: '',
+    password: '',
     rememberMe: false,
   });
 
@@ -29,15 +29,15 @@ const Login = () => {
 
     setFormData((prevData) => ({
       ...prevData,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
   const validateForm = () => {
     let errors = {};
-    if (!formData.identifier) errors.identifier = "Username is required";
-    if (!formData.password) errors.password = "Password is required";
-    if (inputCaptcha !== captcha) errors.captcha = "Captcha does not match";
+    if (!formData.identifier) errors.identifier = 'Username is required';
+    if (!formData.password) errors.password = 'Password is required';
+    if (inputCaptcha !== captcha) errors.captcha = 'Captcha does not match';
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -52,19 +52,19 @@ const Login = () => {
     if (validateForm()) {
       setLoading(true);
       try {
-        const response = await loginUsers.login(formData);
+        const response = await apiUsers.login(formData);
         setFormErrors({});
         setFormData({
-          identifier: "",
-          password: "",
+          identifier: '',
+          password: '',
           rememberMe: false,
         });
 
         const token = response.token;
-        Cookies.set("refreshToken", token);
+        Cookies.set('refreshToken', token);
         setTimeout(() => {
-          navigate("/admin");
-          toast.success("Login successful!");
+          navigate('/admin');
+          toast.success('Login successful!');
         }, 500);
 
         setLoading(false);
@@ -74,7 +74,7 @@ const Login = () => {
       }
     } else {
       if (formErrors.captcha) {
-        toast.error("Captcha does not match!");
+        toast.error('Captcha does not match!');
       }
     }
   };
@@ -88,7 +88,7 @@ const Login = () => {
       <ToastContainer />
       <div className="bg-white p-6 rounded shadow-md w-full max-w-sm">
         <div className="flex flex-row justify-start items-center space-x-3 mb-4">
-          <img src={"/logo.png"} className="w-20" alt="logo skyparking" />
+          <img src={'/logo.png'} className="w-20" alt="logo skyparking" />
           <div className="flex flex-col">
             <h2 className="text-xl font-bold">SKY Membership</h2>
             <p className="text-gray-600 text-sm">Admin Login</p>
@@ -141,7 +141,7 @@ const Login = () => {
             <div className="relative text-white font-semibold w-full h-[40px] px-1 rounded-md text-3xl tracking-[15px] flex items-center justify-center">
               <span
                 className="transform rotate-[5deg] text-yellow-400"
-                style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.5)" }}
+                style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}
               >
                 {captcha}
               </span>

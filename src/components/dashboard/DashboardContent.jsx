@@ -1,14 +1,42 @@
-import React from "react";
-import MemberTable from "./MemberTable";
+import React, { useEffect, useState } from 'react';
+import MemberTable from './MemberTable';
+import { getTransaction } from '../../api/apimembers';
 
 const DashboardContent = () => {
+  const [dataCount, setDataCount] = useState({
+    newMembersCount: 0,
+    countAllTransactions: 0,
+    progressCount: 0,
+    takeCount: 0,
+    doneCount: 0,
+    countExtendMember: 0,
+  });
+
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const responseMetric = await getTransaction.getMetric();
+        console.log(responseMetric);
+        setDataCount(responseMetric);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchMetrics();
+  }, []);
+
+  if (!dataCount) {
+    return <div>Loading...</div>;
+  }
+
   const memberStats = [
-    { title: "Member Baru", count: 120 },
-    { title: "Perpanjang", count: 120 },
-    { title: "Sudah Diambil", count: 85 },
-    { title: "Menunggu Diambil", count: 20 },
-    { title: "Sedang Diproses", count: 15 },
-    { title: "Total Member", count: 240 },
+    { title: 'Member Baru', count: dataCount.newMembersCount },
+    { title: 'Perpanjang', count: dataCount.countExtendMember },
+    { title: 'Sudah Diambil', count: dataCount.doneCount },
+    { title: 'Menunggu Diambil', count: dataCount.takeCount },
+    { title: 'Sedang Diproses', count: dataCount.progressCount },
+    { title: 'Total Member', count: dataCount.countAllTransactions },
   ];
 
   return (
