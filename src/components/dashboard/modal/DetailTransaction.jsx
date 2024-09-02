@@ -146,6 +146,10 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                     <h1 className="text-slate-400 text-sm">{data.fullname}</h1>
                   </div>
                   <div className="flex flex-col justify-start items-start">
+                    <h1 className="font-semibold text-sm">No Antrian</h1>
+                    <h1 className="text-slate-400 text-sm">{data.NoRef}</h1>
+                  </div>
+                  <div className="flex flex-col justify-start items-start">
                     <h1 className="font-semibold text-sm">Nomo Telephone</h1>
                     <h1 className="text-slate-400 text-sm">
                       {data.phonenumber}

@@ -3,6 +3,7 @@ import { getTransaction } from '../../api/apimembers';
 import CryptoJS from 'crypto-js';
 import { GoAlert, GoChecklist } from 'react-icons/go';
 import { useNavigate } from 'react-router-dom';
+import Loading from '../Loading';
 
 export default function RegistrationForm() {
   const [formData, setFormData] = useState({
@@ -298,6 +299,10 @@ export default function RegistrationForm() {
   const closePopupModal = () => {
     setShowModal(false);
   };
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <>

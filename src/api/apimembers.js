@@ -174,12 +174,13 @@ export const getTransaction = {
     }
   },
 
-  sendMessage: async (id) => {
+  sendMessage: async (id, userName) => {
     try {
       const response = await apiBackend.put(
         `/v1/transaction/updateStage/${id}`,
         {
           status: 'take',
+          admin_user: userName,
         }
       );
       return response.data;
@@ -191,12 +192,13 @@ export const getTransaction = {
       throw error;
     }
   },
-  updateDone: async (id) => {
+  updateDone: async (id, userName) => {
     try {
       const response = await apiBackend.put(
         `/v1/transaction/updateStage/${id}`,
         {
           status: 'done',
+          admin_user: userName,
         }
       );
       return response.data;

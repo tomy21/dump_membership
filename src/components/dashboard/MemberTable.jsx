@@ -5,6 +5,9 @@ import { getTransaction } from '../../api/apimembers';
 // import { format } from 'date-fns';
 import DetailTransaction from './modal/DetailTransaction';
 import { GoAlert } from 'react-icons/go';
+import { jwtDecode } from 'jwt-decode';
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 
 const MemberTable = () => {
   const [data, setData] = useState([]);
@@ -19,10 +22,25 @@ const MemberTable = () => {
   const [selectTransactionId, setSelectedTransactionId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [userName, setUserName] = useState('-');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
   }, [searchTerm, currentPage, rowsPerPage]);
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const token = Cookies.get('refreshToken');
+      if (!token) {
+        navigate('/');
+      } else {
+        const decodedToken = jwtDecode(token);
+        setUserName(decodedToken.sub);
+      }
+    };
+    fetchToken();
+  }, [navigate]);
 
   const fetchData = async () => {
     try {
@@ -122,7 +140,7 @@ const MemberTable = () => {
     setIsLoading(true);
 
     setTimeout(async () => {
-      const response = await getTransaction.sendMessage(id);
+      const response = await getTransaction.sendMessage(id, userName);
       console.log(response);
 
       setIsLoading(false);
@@ -135,7 +153,7 @@ const MemberTable = () => {
     setIsLoading(true);
 
     setTimeout(async () => {
-      const response = await getTransaction.updateDone(id);
+      const response = await getTransaction.updateDone(id, userName);
       console.log(response);
 
       setIsLoading(false);
@@ -199,9 +217,9 @@ const MemberTable = () => {
                 }
               />
             </th>
-            {/* <th className="py-3 px-4 bg-gray-100 border-b text-left text-sm font-semibold text-gray-700">
-              Masa aktif
-            </th> */}
+            <th className="py-3 px-4 bg-gray-100 border-b text-left text-sm font-semibold text-gray-700">
+              No Antrian
+            </th>
             <th className="py-3 px-4 bg-gray-100 border-b text-left text-sm font-semibold text-gray-700">
               Nama
             </th>
@@ -235,9 +253,9 @@ const MemberTable = () => {
                     onChange={() => handleCheckboxChange(member.id)}
                   />
                 </td>
-                {/* <td className="py-2 px-4 border-b text-sm text-gray-700">
-                  {format(new Date(member.createdAt), 'dd MMMM Y')}
-                </td> */}
+                <td className="py-2 px-4 border-b text-sm text-gray-700">
+                  {member.NoRef}
+                </td>
                 <td className="py-2 px-4 border-b text-sm text-gray-700">
                   {member.fullname}
                 </td>
