@@ -210,4 +210,26 @@ export const getTransaction = {
       throw error;
     }
   },
+  getByStatus: async (status, search, page, limit) => {
+    try {
+      const response = await apiBackend.get(
+        `/v1/transaction/transactionStatus`,
+        {
+          params: {
+            status,
+            search,
+            page,
+            limit,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        'Error fetching transaction data:',
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  },
 };

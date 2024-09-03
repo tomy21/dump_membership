@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import DetailTransaction from './modal/DetailTransaction';
 import { MdMoreVert, MdOutlineFileDownload } from 'react-icons/md';
 import { FaArrowLeftLong, FaArrowRightLong, FaSpinner } from 'react-icons/fa6';
-import { getTransaction } from '../../api/apimembers';
-// import { format } from 'date-fns';
-import DetailTransaction from './modal/DetailTransaction';
+
 import { GoAlert } from 'react-icons/go';
 import { jwtDecode } from 'jwt-decode';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
+import { getTransaction } from '../../api/apimembers';
+import Tabs from '../Tabs';
 
 const MemberTable = () => {
   const [data, setData] = useState([]);
@@ -22,12 +23,13 @@ const MemberTable = () => {
   const [selectTransactionId, setSelectedTransactionId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [activeTab, setActiveTab] = useState('all');
   const [userName, setUserName] = useState('-');
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
-  }, [searchTerm, currentPage, rowsPerPage]);
+  }, [searchTerm, currentPage, rowsPerPage, activeTab]);
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -44,18 +46,39 @@ const MemberTable = () => {
 
   const fetchData = async () => {
     try {
-      const response = await getTransaction.getData(
-        searchTerm,
-        currentPage,
-        rowsPerPage
-      );
-      setData(response.data.transactions);
-      setTotalPages(response.data.totalPages);
-      setTotalRows(response.data.totalCount);
-      setCurrentPage(response.data.currentPage);
-      setRowsPerPage(response.data.rowsPerPage || rowsPerPage);
+      setIsLoading(true);
+      const status = activeTab === 'all' ? '' : activeTab;
+
+      if (activeTab === 'all') {
+        const response = await getTransaction.getData(
+          searchTerm,
+          currentPage,
+          rowsPerPage
+        );
+        console.log('data', response);
+        setData(response.data.transactions);
+        setTotalPages(response.data.totalPages);
+        setTotalRows(response.data.totalCount);
+        setCurrentPage(response.data.currentPage);
+        setRowsPerPage(response.data.rowsPerPage || rowsPerPage);
+      } else {
+        const response = await getTransaction.getByStatus(
+          status,
+          searchTerm,
+          currentPage,
+          rowsPerPage
+        );
+        console.log('data', response);
+        setData(response.data.transactions);
+        setTotalPages(response.data.totalPages);
+        setTotalRows(response.data.totalCount);
+        setCurrentPage(response.data.currentPage);
+        setRowsPerPage(response.data.rowsPerPage || rowsPerPage);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -81,19 +104,15 @@ const MemberTable = () => {
 
   const handleExport = async () => {
     try {
-      // Memanggil API untuk mendapatkan file Excel
       const response = await getTransaction.exportData();
-
-      // Membuat Blob dari respons API untuk mendownload file
       const blob = new Blob([response.data], {
-        // Menggunakan response.data
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
 
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'dumpDataMembers.xlsx'; // Nama file yang diunduh
+      a.download = 'dumpDataMembers.xlsx';
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -129,15 +148,12 @@ const MemberTable = () => {
 
     const member = data.find((item) => item.id === id);
 
-    // Cek apakah NoCard kosong
     if (!member.NoCard) {
       setShowErrorPopup(true);
       setIsLoading(false);
       setDropdownIndex(null);
       return;
     }
-
-    setIsLoading(true);
 
     setTimeout(async () => {
       const response = await getTransaction.sendMessage(id, userName);
@@ -187,6 +203,7 @@ const MemberTable = () => {
 
   return (
     <div className="bg-white shadow-md rounded-lg p-4">
+      <Tabs activeTab={activeTab} onTabClick={setActiveTab} />
       {/* Search and Export */}
       <div className="flex justify-between items-center mb-4">
         <input

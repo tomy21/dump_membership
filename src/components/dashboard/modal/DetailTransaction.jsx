@@ -21,7 +21,7 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
     const fetchData = async () => {
       try {
         const response = await getTransaction.getById(idTransaksi);
-
+        console.log('responseTransaction', response);
         setData(response.data);
         setNoCard(response.data.NoCard || '');
       } catch (error) {
@@ -135,35 +135,13 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
           <div className="">
             <h2 className="text-lg font-semibold mb-4">Detail Transaksi</h2>
             {data ? (
-              <div>
-                <div className="grid grid-cols-2 md:grid-cols-2 gap-2 mb-6">
-                  <div className="flex flex-col justify-start items-start">
-                    <h1 className="font-semibold text-sm">Email</h1>
-                    <h1 className="text-slate-400 text-sm">{data.email}</h1>
+              <>
+                <div className="flex justify-between items-center mb-5 ">
+                  <div className="flex flex-row justify-start items-center gap-x-3">
+                    <h1 className="font-semibold text-base">No Antrian</h1>
+                    <h1 className="text-slate-400 text-base">{data.NoRef}</h1>
                   </div>
-                  <div className="flex flex-col justify-start items-start">
-                    <h1 className="font-semibold text-sm">User Name</h1>
-                    <h1 className="text-slate-400 text-sm">{data.fullname}</h1>
-                  </div>
-                  <div className="flex flex-col justify-start items-start">
-                    <h1 className="font-semibold text-sm">No Antrian</h1>
-                    <h1 className="text-slate-400 text-sm">{data.NoRef}</h1>
-                  </div>
-                  <div className="flex flex-col justify-start items-start">
-                    <h1 className="font-semibold text-sm">Nomo Telephone</h1>
-                    <h1 className="text-slate-400 text-sm">
-                      {data.phonenumber}
-                    </h1>
-                  </div>
-                  <div className="flex flex-col justify-start items-start">
-                    <h1 className="font-semibold text-sm">Plat Nomor</h1>
-                    <h1 className="text-slate-400 text-sm">
-                      {data.PlateNumber}
-                    </h1>
-                  </div>
-
-                  <div className="flex flex-col justify-start items-start">
-                    <h1 className="font-semibold text-sm">Status</h1>
+                  <div className="flex flex-row items-center justify-start gap-x-3">
                     <h1
                       className={`text-blue-500 hover:text-blue-700 bg-blue-100 py-1 px-2 rounded-md ${getStatusStyles(
                         data.statusProgress
@@ -172,127 +150,164 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                       {data.statusProgress}
                     </h1>
                   </div>
+                </div>
+                <div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-6 border-dashed border p-2 rounded-md">
+                    <div className="flex flex-col justify-start items-start">
+                      <h1 className="font-semibold text-sm">Email</h1>
+                      <h1 className="text-slate-400 text-sm">{data.email}</h1>
+                    </div>
+                    <div className="flex flex-col justify-start items-start">
+                      <h1 className="font-semibold text-sm">User Name</h1>
+                      <h1 className="text-slate-400 text-sm">
+                        {data.fullname}
+                      </h1>
+                    </div>
+                    <div className="flex flex-col justify-start items-start">
+                      <h1 className="font-semibold text-sm">
+                        Rekening atas nama
+                      </h1>
+                      <h1 className="text-slate-400 text-sm">{data.namaRek}</h1>
+                    </div>
+                    <div className="flex flex-col justify-start items-start">
+                      <h1 className="font-semibold text-sm">Nomo Telphone</h1>
+                      <h1 className="text-slate-400 text-sm">
+                        {data.phonenumber}
+                      </h1>
+                    </div>
+                    <div className="flex flex-col justify-start items-start">
+                      <h1 className="font-semibold text-sm">Plat Nomor</h1>
+                      <h1 className="text-slate-400 text-sm">
+                        {data.PlateNumber}
+                      </h1>
+                    </div>
 
-                  <div className="flex flex-col justify-start items-start">
-                    <h1 className="font-semibold text-sm">No Card</h1>
-                    {isEditingNoCard ? (
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="text"
-                          value={noCard}
-                          onChange={handleNoCardChange}
-                          className="text-slate-400 text-sm border p-1 rounded"
-                        />
-                        <button
-                          onClick={handleNoCardUpdate}
-                          className="text-blue-500 hover:text-blue-700 bg-blue-100 py-1 px-2 rounded-md"
-                        >
-                          Save
-                        </button>
-                        {isSuccess && (
-                          <IoMdCheckmarkCircleOutline className="ml-2 text-green-500" />
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex items-center space-x-2">
-                        <h1 className="text-slate-400 text-sm">
-                          {noCard || 'No Card Available'}
-                        </h1>
-                        {!noCard && (
+                    <div className="flex flex-col justify-start items-start">
+                      <h1 className="font-semibold text-sm">Nomor Rekening</h1>
+                      <h1 className="text-slate-400 text-sm">{data.noRek}</h1>
+                    </div>
+
+                    <div className="flex flex-col justify-start items-start">
+                      <h1 className="font-semibold text-sm">No Card</h1>
+                      {isEditingNoCard ? (
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="text"
+                            value={noCard}
+                            onChange={handleNoCardChange}
+                            className="text-slate-400 text-sm border p-1 rounded"
+                          />
                           <button
-                            onClick={() => setIsEditingNoCard(true)}
+                            onClick={handleNoCardUpdate}
                             className="text-blue-500 hover:text-blue-700 bg-blue-100 py-1 px-2 rounded-md"
                           >
-                            Edit
+                            Save
                           </button>
-                        )}
-                      </div>
-                    )}
+                          {isSuccess && (
+                            <IoMdCheckmarkCircleOutline className="ml-2 text-green-500" />
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <h1 className="text-slate-400 text-sm">
+                            {noCard || 'No Card Available'}
+                          </h1>
+                          {!noCard && (
+                            <button
+                              onClick={() => setIsEditingNoCard(true)}
+                              className="text-blue-500 hover:text-blue-700 bg-blue-100 py-1 px-2 rounded-md"
+                            >
+                              Edit
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                <div className="border-b border-slate-300 my-3"></div>
+                  <div className="border-b border-slate-300 my-3"></div>
 
-                <div className="grid grid-cols-3 md:grid-cols-3 gap-2 mb-6">
-                  <div className="flex flex-col justify-start items-start p-2">
-                    <h1 className="font-semibold text-sm mb-2">STNK</h1>
-                    <img
-                      src={
-                        data.stnk
-                          ? `https://devapi-injectmember.skyparking.online/uploads/stnk/${data.stnk}`
-                          : '/public/no-image.png'
-                      }
-                      alt="STNK"
-                      className="w-32 rounded-md shadow-md cursor-pointer"
-                      onClick={() =>
-                        handleImageClick(
-                          `https://devapi-injectmember.skyparking.online/uploads/stnk/${data.stnk}`
-                        )
-                      }
+                  <div className="grid grid-cols-3 md:grid-cols-3 gap-2 mb-6">
+                    <div className="flex flex-col justify-start items-start p-2">
+                      <h1 className="font-semibold text-sm mb-2">STNK</h1>
+                      <img
+                        src={
+                          data.stnk
+                            ? `https://devapi-injectmember.skyparking.online/uploads/stnk/${data.stnk}`
+                            : '/public/no-image.png'
+                        }
+                        alt="STNK"
+                        className="w-32 rounded-md shadow-md cursor-pointer"
+                        onClick={() =>
+                          handleImageClick(
+                            `https://devapi-injectmember.skyparking.online/uploads/stnk/${data.stnk}`
+                          )
+                        }
+                      />
+                    </div>
+
+                    <div className="flex flex-col justify-start items-start p-2">
+                      <h1 className="font-semibold text-sm mb-2">Plat Nomor</h1>
+                      <img
+                        src={
+                          data.licensePlate
+                            ? `https://devapi-injectmember.skyparking.online/uploads/licensePlate/${data.licensePlate}`
+                            : '/public/no-image.png'
+                        }
+                        alt="Plat Nomor"
+                        className="w-32 rounded-md shadow-md cursor-pointer"
+                        onClick={() =>
+                          handleImageClick(
+                            `https://devapi-injectmember.skyparking.online/uploads/licensePlate/${data.licensePlate}`
+                          )
+                        }
+                      />
+                    </div>
+
+                    <div className="flex flex-col justify-start items-start p-2">
+                      <h1 className="font-semibold text-sm mb-2">
+                        Bukti Pembayaran
+                      </h1>
+                      <img
+                        src={
+                          data.paymentFile
+                            ? `https://devapi-injectmember.skyparking.online/uploads/transfer/${data.paymentFile}`
+                            : '/public/no-image.png'
+                        }
+                        alt="Bukti Pembayaran"
+                        className="w-32 rounded-md shadow-md cursor-pointer"
+                        onClick={() =>
+                          handleImageClick(
+                            `https://devapi-injectmember.skyparking.online/uploads/transfer/${data.paymentFile}`
+                          )
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="border-t border-slate-300 my-3"></div>
+
+                  {/* Search Section */}
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Search Mutasi"
+                      className="w-full p-2 border rounded-md"
                     />
+                    <button
+                      onClick={handleSearch}
+                      className="text-white bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded-md"
+                    >
+                      Search
+                    </button>
                   </div>
-
-                  <div className="flex flex-col justify-start items-start p-2">
-                    <h1 className="font-semibold text-sm mb-2">Plat Nomor</h1>
-                    <img
-                      src={
-                        data.licensePlate
-                          ? `https://devapi-injectmember.skyparking.online/uploads/licensePlate/${data.licensePlate}`
-                          : '/public/no-image.png'
-                      }
-                      alt="Plat Nomor"
-                      className="w-32 rounded-md shadow-md cursor-pointer"
-                      onClick={() =>
-                        handleImageClick(
-                          `https://devapi-injectmember.skyparking.online/uploads/licensePlate/${data.licensePlate}`
-                        )
-                      }
-                    />
-                  </div>
-
-                  <div className="flex flex-col justify-start items-start p-2">
-                    <h1 className="font-semibold text-sm mb-2">
-                      Bukti Pembayaran
-                    </h1>
-                    <img
-                      src={
-                        data.paymentFile
-                          ? `https://devapi-injectmember.skyparking.online/uploads/transfer/${data.paymentFile}`
-                          : '/public/no-image.png'
-                      }
-                      alt="Bukti Pembayaran"
-                      className="w-32 rounded-md shadow-md cursor-pointer"
-                      onClick={() =>
-                        handleImageClick(
-                          `https://devapi-injectmember.skyparking.online/uploads/transfer/${data.paymentFile}`
-                        )
-                      }
-                    />
-                  </div>
+                  {searchError && (
+                    <div className="mt-2 text-red-500">{searchError}</div>
+                  )}
                 </div>
-
-                <div className="border-t border-slate-300 my-3"></div>
-
-                {/* Search Section */}
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search Mutasi"
-                    className="w-full p-2 border rounded-md"
-                  />
-                  <button
-                    onClick={handleSearch}
-                    className="text-white bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded-md"
-                  >
-                    Search
-                  </button>
-                </div>
-                {searchError && (
-                  <div className="mt-2 text-red-500">{searchError}</div>
-                )}
-              </div>
+              </>
             ) : (
               <div>Loading data...</div>
             )}
