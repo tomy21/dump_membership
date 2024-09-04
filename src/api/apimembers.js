@@ -28,13 +28,25 @@ export const getTransaction = {
 
   createData: async (formData) => {
     try {
+      // Pastikan formData adalah instance dari FormData
+      if (!(formData instanceof FormData)) {
+        throw new Error('formData harus merupakan instance dari FormData');
+      }
+
       const response = await apiBackend.post(
         '/v1/transaction/createTransactions',
-        formData
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data', // Header ini dapat dihilangkan karena Axios menambahkannya otomatis
+          },
+        }
       );
+
+      console.log(formData);
       return response.data;
     } catch (error) {
-      throw error.response.data;
+      throw error.response ? error.response.data : new Error(error.message);
     }
   },
 

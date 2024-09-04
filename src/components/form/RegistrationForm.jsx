@@ -11,9 +11,12 @@ export default function RegistrationForm() {
     phonenumber: '+62',
     email: '',
     NoCard: '',
-    membershipStatus: 'new',
+    membershipStatus: '',
     vehicletype: '',
     locationCode: '',
+    noRek: '',
+    namaRek: '',
+    PlateNumber: '',
   });
   const [files, setFiles] = useState({
     licensePlate: null,
@@ -61,38 +64,44 @@ export default function RegistrationForm() {
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
+
     setFormData({
       ...formData,
       [name]: value,
     });
 
-    // Update quota, virtual account, and price based on location and vehicle type
-    if (name === 'vehicletype' || name === 'locationCode') {
+    if (name === 'NoCard') {
+      setFormData((prevData) => ({
+        ...prevData,
+        membershipStatus: 'extend',
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        membershipStatus: 'new',
+      }));
+    }
+
+    if (name === 'locationCode') {
       const selectedLocation = locations.find(
         (location) =>
           location.locationCode ===
           (name === 'locationCode' ? value : formData.locationCode)
       );
+      // console.log('quota', selectedLocation);
+      setQuota(selectedLocation);
+      setVirtualAccount(selectedLocation?.virtualAccount);
+    }
 
-      if (selectedLocation) {
-        if (
-          formData.vehicletype === 'MOBIL' ||
-          (name === 'vehicletype' && value === 'MOBIL')
-        ) {
-          setQuota(
-            `${selectedLocation.QuotaMobilRemaining}/${selectedLocation.quotaMobil}`
-          );
-          setPrice(selectedLocation.prices[0]?.priceMobil || 'N/A');
-        } else if (
-          formData.vehicletype === 'MOTOR' ||
-          (name === 'vehicletype' && value === 'MOTOR')
-        ) {
-          setQuota(
-            `${selectedLocation.QuotaMotorRemaining}/${selectedLocation.quotaMotor}`
-          );
-          setPrice(selectedLocation.prices[0]?.priceMotor || 'N/A');
-        }
-        setVirtualAccount(selectedLocation.virtualAccount);
+    if (name === 'vehicletype') {
+      const selectedLocation = locations.find(
+        (location) => location.locationCode === formData.locationCode
+      );
+
+      if (value === 'MOBIL') {
+        setPrice(selectedLocation?.prices[0]?.priceMobil || 'N/A');
+      } else if (value === 'MOTOR') {
+        setPrice(selectedLocation?.prices[0]?.priceMotor || 'N/A');
       }
     }
   };
@@ -168,14 +177,14 @@ export default function RegistrationForm() {
               ...formData,
               PlateNumber: result.results[0].plate.toUpperCase(),
             });
-            setEditEnabled(true); // Jika tidak terdeteksi, izinkan edit
+            setEditEnabled(true);
           } else {
             console.log('Plate number not detected');
-            setEditEnabled(true); // Jika tidak terdeteksi, izinkan edit
+            setEditEnabled(true);
           }
         } catch (error) {
           console.error('Error:', error);
-          setEditEnabled(true); // Jika terjadi error, izinkan edit
+          setEditEnabled(true);
         } finally {
           setLoadingPlate(false);
         }
@@ -196,6 +205,10 @@ export default function RegistrationForm() {
     if (editEnabled) {
       const formattedValue = e.target.value.replace(/\s+/g, '').toUpperCase();
       setPlatNumber(formattedValue);
+      setFormData({
+        ...formData,
+        PlateNumber: formattedValue,
+      });
     }
   };
 
@@ -221,6 +234,7 @@ export default function RegistrationForm() {
   const handleFinalSubmit = async () => {
     try {
       setLoading(true);
+      console.log(formData);
       const finalPayload = {
         ...formData,
         licensePlate: files.licensePlate ? files.licensePlate.name : null,
@@ -228,10 +242,8 @@ export default function RegistrationForm() {
         paymentFile: paymentFile ? paymentFile.name : null,
       };
 
-      // Enkripsi payload
       const encryptedPayload = encryptData(finalPayload);
 
-      // Buat FormData untuk dikirim
       const formPayload = new FormData();
       formPayload.append('encryptedPayload', encryptedPayload);
 
@@ -244,8 +256,7 @@ export default function RegistrationForm() {
       if (paymentFile) {
         formPayload.append('paymentFile', paymentFile);
       }
-
-      // Kirim data ke API menggunakan multipart/form-data
+      console.log('data', formPayload);
       const response = await getTransaction.createData(formPayload);
 
       if (response.status === true) {
@@ -261,7 +272,7 @@ export default function RegistrationForm() {
       setLoading(false);
       setShowModal(false);
     } catch (error) {
-      setError('Pendaftaran gagal. Silakan coba lagi.'); // Pesan error
+      setError('Pendaftaran gagal. Silakan coba lagi.');
       setShowErrorPopup(true);
     } finally {
       setLoading(false);
@@ -279,6 +290,8 @@ export default function RegistrationForm() {
       membershipStatus: '',
       vehicletype: '',
       locationCode: '',
+      noRek: '',
+      namaRek: '',
     });
     setFiles({
       licensePlate: null,
@@ -313,6 +326,14 @@ export default function RegistrationForm() {
         <div className="space-y-4">
           <input
             type="text"
+            name="NoCard"
+            placeholder="Nomor Kartu"
+            value={formData.NoCard}
+            onChange={handleInputChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <input
+            type="text"
             name="fullname"
             placeholder="Nama Member"
             value={formData.fullname}
@@ -340,50 +361,75 @@ export default function RegistrationForm() {
             required
           />
 
-          <label className="block text-gray-700">Tipe Kendaraan:</label>
-          <select
-            name="vehicletype"
-            value={formData.vehicletype}
-            onChange={handleInputChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            required
-          >
-            <option value="">Pilih Tipe Kendaraan</option>
-            <option value="MOBIL">Mobil</option>
-            <option value="MOTOR">Motor</option>
-          </select>
+          <label className="block text-gray-700">Lokasi:</label>
+          <div onScroll={handleScroll}>
+            <select
+              name="locationCode"
+              value={formData.locationCode}
+              onChange={handleInputChange}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
+            >
+              <option value="">Pilih Kode Lokasi</option>
+              {locations.map((location) => (
+                <option key={location.id} value={location.locationCode}>
+                  {location.locationName}
+                </option>
+              ))}
+            </select>
+            {loading && <p>Loading more locations...</p>}
+          </div>
 
-          {formData.vehicletype && (
+          {formData.locationCode && (
             <>
-              <label className="block text-gray-700">Lokasi:</label>
-              <div onScroll={handleScroll}>
-                <select
-                  name="locationCode"
-                  value={formData.locationCode}
-                  onChange={handleInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  required
+              <label className="block text-gray-700">Tipe Kendaraan:</label>
+              <select
+                name="vehicletype"
+                value={formData.vehicletype}
+                onChange={handleInputChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                required
+              >
+                <option value="">Pilih Tipe Kendaraan</option>
+                <option
+                  value="MOBIL"
+                  disabled={quota?.QuotaMobilRemaining === 0}
                 >
-                  <option value="">Pilih Kode Lokasi</option>
-                  {locations.map((location) => (
-                    <option key={location.id} value={location.locationCode}>
-                      {location.locationName}
-                    </option>
-                  ))}
-                </select>
-                {loading && <p>Loading more locations...</p>}
-              </div>
+                  Mobil{' '}
+                  {quota?.QuotaMobilRemaining === 0
+                    ? 'Quota habis'
+                    : `(${quota.QuotaMobilRemaining} free)`}
+                </option>
+                <option
+                  value="MOTOR"
+                  disabled={quota?.QuotaMotorRemaining === 0}
+                >
+                  Motor{' '}
+                  {quota?.QuotaMotorRemaining === 0
+                    ? 'Quota habis'
+                    : `(${quota.QuotaMotorRemaining} free)`}
+                </option>
+              </select>
             </>
           )}
 
           <input
             type="text"
-            name="quota"
-            placeholder="Quota"
-            value={quota}
+            name="namaRek"
+            placeholder="Rekening atas nama"
+            value={formData.namaRek}
             onChange={handleInputChange}
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            readOnly
+            required
+          />
+          <input
+            type="number"
+            name="noRek"
+            placeholder="Nomor rekening"
+            value={formData.noRek}
+            onChange={handleInputChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
           />
 
           <div className="space-y-2 relative">
@@ -442,7 +488,10 @@ export default function RegistrationForm() {
       </form>
 
       {showEdit && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+          style={{ margin: 0 }}
+        >
           <div className="bg-white p-5 rounded-lg shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Edit Plat Nomor</h2>
             <input
