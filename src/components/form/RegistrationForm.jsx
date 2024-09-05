@@ -4,6 +4,7 @@ import CryptoJS from 'crypto-js';
 import { GoAlert, GoChecklist } from 'react-icons/go';
 import { useNavigate } from 'react-router-dom';
 import Loading from '../Loading';
+import { IoMdInformationCircleOutline } from 'react-icons/io';
 
 export default function RegistrationForm() {
   const [formData, setFormData] = useState({
@@ -41,6 +42,7 @@ export default function RegistrationForm() {
   const [paymentFile, setPaymentFile] = useState(null);
   const [error, setError] = useState(null);
   const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
   const navigate = useNavigate();
 
   const loadLocations = async () => {
@@ -69,18 +71,6 @@ export default function RegistrationForm() {
       ...formData,
       [name]: value,
     });
-
-    if (name === 'NoCard') {
-      setFormData((prevData) => ({
-        ...prevData,
-        membershipStatus: 'extend',
-      }));
-    } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        membershipStatus: 'new',
-      }));
-    }
 
     if (name === 'locationCode') {
       const selectedLocation = locations.find(
@@ -214,6 +204,18 @@ export default function RegistrationForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!formData.NoCard) {
+      setFormData({
+        ...formData,
+        membershipStatus: 'new',
+      });
+    } else {
+      setFormData({
+        ...formData,
+        membershipStatus: 'extend',
+      });
+    }
+    console.log(formData);
     setShowModal(true);
   };
 
@@ -256,7 +258,6 @@ export default function RegistrationForm() {
       if (paymentFile) {
         formPayload.append('paymentFile', paymentFile);
       }
-      console.log('data', formPayload);
       const response = await getTransaction.createData(formPayload);
 
       if (response.status === true) {
@@ -311,6 +312,10 @@ export default function RegistrationForm() {
 
   const closePopupModal = () => {
     setShowModal(false);
+  };
+
+  const handleInfo = () => {
+    setShowInfo((prev) => !prev);
   };
 
   if (loading) {
@@ -434,7 +439,24 @@ export default function RegistrationForm() {
 
           <div className="space-y-2 relative">
             <label className="block text-gray-700">
-              Upload Foto Plat Nomor:
+              <div className="flex flex-row justify-between items-center">
+                <p>Upload Foto Plat Nomor:</p>
+                <IoMdInformationCircleOutline
+                  className="hover:text-blue-600"
+                  onClick={handleInfo}
+                />
+              </div>
+              {showInfo && (
+                <>
+                  <div className="absolute w-20 max-h-40 rounded-md bg-blue-100 right-5 -top-5 p-2">
+                    <img
+                      src={'/Picture1.jpg'}
+                      className="w-52 rounded-md"
+                      alt=""
+                    />
+                  </div>
+                </>
+              )}
             </label>
             <input
               type="file"
@@ -613,7 +635,7 @@ export default function RegistrationForm() {
           style={{ margin: 0 }}
         >
           <div className="bg-white p-5 rounded-lg shadow-lg flex flex-col justify-center items-center space-y-4">
-            <GoAlert className="w-20 text-red-500" />
+            <GoAlert size={35} className="text-red-500" />
             <h2 className="text-lg font-semibold mb-4">{error}</h2>
             <button
               onClick={closeErrorPopup}

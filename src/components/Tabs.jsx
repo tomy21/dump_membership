@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const Tabs = ({ activeTab, onTabClick }) => {
-  const tabs = ['All', 'New', 'on progress', 'Take', 'Done'];
+  const tabs = ['All', 'New', 'On progress', 'Take', 'Done'];
 
   return (
     <div className="flex justify-start border-b-2 border-gray-300 mb-3">

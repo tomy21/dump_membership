@@ -37,7 +37,6 @@ export default function MutasiTable() {
       minimumFractionDigits: 0,
     });
   };
-
   const handlePageClick = (page) => {
     if (page >= 1 && page <= totalPage) {
       setPages(page);

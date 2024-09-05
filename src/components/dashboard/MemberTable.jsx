@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import DetailTransaction from './modal/DetailTransaction';
 import { MdMoreVert, MdOutlineFileDownload } from 'react-icons/md';
 import { FaArrowLeftLong, FaArrowRightLong, FaSpinner } from 'react-icons/fa6';
@@ -9,6 +9,7 @@ import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import { getTransaction } from '../../api/apimembers';
 import Tabs from '../Tabs';
+import { RoleContext } from '../../pages/RoleContext';
 
 const MemberTable = () => {
   const [data, setData] = useState([]);
@@ -25,6 +26,7 @@ const MemberTable = () => {
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [userName, setUserName] = useState('-');
+  const roleId = useContext(RoleContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,7 +57,6 @@ const MemberTable = () => {
           currentPage,
           rowsPerPage
         );
-        console.log('data', response);
         setData(response.data.transactions);
         setTotalPages(response.data.totalPages);
         setTotalRows(response.data.totalCount);
@@ -68,7 +69,6 @@ const MemberTable = () => {
           currentPage,
           rowsPerPage
         );
-        console.log('data', response);
         setData(response.data.transactions);
         setTotalPages(response.data.totalPages);
         setTotalRows(response.data.totalCount);
@@ -360,31 +360,36 @@ const MemberTable = () => {
                       >
                         Detail
                       </button>
-
-                      {member.statusProgress === 'take' ? (
-                        <>
-                          {isLoading ? (
-                            <FaSpinner className="animate-spin mr-2" />
-                          ) : (
-                            <button
-                              onClick={() => handleDone(member.id)}
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 w-full text-left"
-                            >
-                              Sudah Diambil
-                            </button>
-                          )}
-                        </>
+                      {roleId === 6 ? (
+                        ''
                       ) : (
                         <>
-                          {isLoading ? (
-                            <FaSpinner className="animate-spin mr-2" />
+                          {member.statusProgress === 'take' ? (
+                            <>
+                              {isLoading ? (
+                                <FaSpinner className="animate-spin flex justify-center" />
+                              ) : (
+                                <button
+                                  onClick={() => handleDone(member.id)}
+                                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 w-full text-left"
+                                >
+                                  Sudah Diambil
+                                </button>
+                              )}
+                            </>
                           ) : (
-                            <button
-                              onClick={() => handleEdit(member.id)}
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 w-full text-left"
-                            >
-                              Siap Diambil
-                            </button>
+                            <>
+                              {isLoading ? (
+                                <FaSpinner className="animate-spin flex justify-center" />
+                              ) : (
+                                <button
+                                  onClick={() => handleEdit(member.id)}
+                                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 w-full text-left"
+                                >
+                                  Konfirmasi
+                                </button>
+                              )}
+                            </>
                           )}
                         </>
                       )}

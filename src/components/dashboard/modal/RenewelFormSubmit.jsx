@@ -15,6 +15,13 @@ const RenewalFormSubmit = ({
     setpPaymentFile(e.target.files[0]);
   };
 
+  const formatCurrency = (amount) => {
+    return amount.toLocaleString('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+    });
+  };
+
   const encryptData = (data) => {
     return cryptoJs.AES.encrypt(
       JSON.stringify(data),
@@ -68,9 +75,14 @@ const RenewalFormSubmit = ({
             <strong>Tipe Kendaraan:</strong> {transactionData.vehicletype}
           </p>
 
-          <p>Silahkan transfer ke no VA berikut</p>
-          <p>{virtualAccount}</p>
-          <p>Nominal : {price}</p>
+          <p className="mt-3">Silahkan transfer ke no VA berikut</p>
+          <p className="text-base font-semibold">{virtualAccount}</p>
+          <p>
+            Nominal :{' '}
+            <span className="text-base font-semibold">
+              {formatCurrency(price)}
+            </span>
+          </p>
 
           <label className="block text-gray-700 mt-4">
             Upload Bukti Transfer:

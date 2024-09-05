@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { getTransaction } from '../../../api/apimembers';
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io';
 import { format } from 'date-fns';
 import PropTypes from 'prop-types';
+import { RoleContext } from '../../../pages/RoleContext';
 
 export default function DetailTransaction({ idTransaksi, isClosed }) {
   const [data, setData] = useState(null); // Mengubah dari string kosong menjadi null untuk data
@@ -15,13 +16,13 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdateSuccess, setIsUpdateSuccess] = useState(false);
-  const [searchError, setSearchError] = useState(null); // Untuk menangani error pencarian
+  const [searchError, setSearchError] = useState(null);
+  const roleId = useContext(RoleContext);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await getTransaction.getById(idTransaksi);
-        console.log('responseTransaction', response);
         setData(response.data);
         setNoCard(response.data.NoCard || '');
       } catch (error) {
@@ -104,7 +105,7 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
     try {
       console.log(searchTerm);
       const response = await getTransaction.getMutasi(searchTerm);
-
+      console.log('data', response);
       if (response.data.length > 0) {
         setSearchResults(response.data);
         setShowSearchModal(true);
@@ -187,42 +188,48 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                       <h1 className="text-slate-400 text-sm">{data.noRek}</h1>
                     </div>
 
-                    <div className="flex flex-col justify-start items-start">
-                      <h1 className="font-semibold text-sm">No Card</h1>
-                      {isEditingNoCard ? (
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="text"
-                            value={noCard}
-                            onChange={handleNoCardChange}
-                            className="text-slate-400 text-sm border p-1 rounded"
-                          />
-                          <button
-                            onClick={handleNoCardUpdate}
-                            className="text-blue-500 hover:text-blue-700 bg-blue-100 py-1 px-2 rounded-md"
-                          >
-                            Save
-                          </button>
-                          {isSuccess && (
-                            <IoMdCheckmarkCircleOutline className="ml-2 text-green-500" />
+                    {roleId === 6 ? (
+                      ''
+                    ) : (
+                      <>
+                        <div className="flex flex-col justify-start items-start">
+                          <h1 className="font-semibold text-sm">No Card</h1>
+                          {isEditingNoCard ? (
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="text"
+                                value={noCard}
+                                onChange={handleNoCardChange}
+                                className="text-slate-400 text-sm border p-1 rounded"
+                              />
+                              <button
+                                onClick={handleNoCardUpdate}
+                                className="text-blue-500 hover:text-blue-700 bg-blue-100 py-1 px-2 rounded-md"
+                              >
+                                Save
+                              </button>
+                              {isSuccess && (
+                                <IoMdCheckmarkCircleOutline className="ml-2 text-green-500" />
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex items-center space-x-2">
+                              <h1 className="text-slate-400 text-sm">
+                                {noCard || 'No Card Available'}
+                              </h1>
+                              {!noCard && (
+                                <button
+                                  onClick={() => setIsEditingNoCard(true)}
+                                  className="text-blue-500 hover:text-blue-700 bg-blue-100 py-1 px-2 rounded-md"
+                                >
+                                  Edit
+                                </button>
+                              )}
+                            </div>
                           )}
                         </div>
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          <h1 className="text-slate-400 text-sm">
-                            {noCard || 'No Card Available'}
-                          </h1>
-                          {!noCard && (
-                            <button
-                              onClick={() => setIsEditingNoCard(true)}
-                              className="text-blue-500 hover:text-blue-700 bg-blue-100 py-1 px-2 rounded-md"
-                            >
-                              Edit
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                      </>
+                    )}
                   </div>
 
                   <div className="border-b border-slate-300 my-3"></div>
@@ -288,23 +295,30 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                   <div className="border-t border-slate-300 my-3"></div>
 
                   {/* Search Section */}
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="text"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Search Mutasi"
-                      className="w-full p-2 border rounded-md"
-                    />
-                    <button
-                      onClick={handleSearch}
-                      className="text-white bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded-md"
-                    >
-                      Search
-                    </button>
-                  </div>
-                  {searchError && (
-                    <div className="mt-2 text-red-500">{searchError}</div>
+
+                  {roleId !== 6 ? (
+                    ''
+                  ) : (
+                    <>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="text"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          placeholder="Search Mutasi"
+                          className="w-full p-2 border rounded-md"
+                        />
+                        <button
+                          onClick={handleSearch}
+                          className="text-white bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded-md"
+                        >
+                          Search
+                        </button>
+                      </div>
+                      {searchError && (
+                        <div className="mt-2 text-red-500">{searchError}</div>
+                      )}
+                    </>
                   )}
                 </div>
               </>
@@ -326,12 +340,13 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
               &times;
             </button>
             <h2 className="text-lg font-semibold mb-4">Search Results</h2>
-            <ul>
+            <ul className="max-h-[70vh] overflow-auto px-2">
               {searchResults.map((result, index) => (
                 <li key={index} className="border-b py-2">
                   <div className="flex justify-between items-center">
                     <div className="flex flex-col justify-start items-start">
                       <h1 className="text-sm">{result.description}</h1>
+                      <h1 className="text-sm">{result.nominal}</h1>
                       <h1 className="text-sm">
                         {format(new Date(result.dateinsert), 'dd MMMM yyyy')}
                       </h1>
