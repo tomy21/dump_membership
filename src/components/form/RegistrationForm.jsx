@@ -147,7 +147,7 @@ export default function RegistrationForm() {
         setLoadingPlate(true);
         const formUpload = new FormData();
         formUpload.append('upload', files.licensePlate);
-        const apiToken = process.env.REACT_APP_API_TOKEN;
+        const apiToken = 'c6f266f5f06d9bbbb9b1688722211a9f2e7770d0';
         try {
           const response = await fetch(
             'https://api.platerecognizer.com/v1/plate-reader/',
@@ -229,7 +229,7 @@ export default function RegistrationForm() {
   const encryptData = (data) => {
     return CryptoJS.AES.encrypt(
       JSON.stringify(data),
-      process.env.REACT_APP_SECRET_KEY
+      'galihtanjungtresna'
     ).toString();
   };
 

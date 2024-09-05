@@ -25,7 +25,7 @@ const RenewalFormSubmit = ({
   const encryptData = (data) => {
     return cryptoJs.AES.encrypt(
       JSON.stringify(data),
-      process.env.REACT_APP_SECRET_KEY
+      'galihtanjungtresna'
     ).toString();
   };
   console.log(transactionData);
