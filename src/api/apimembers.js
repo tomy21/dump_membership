@@ -116,7 +116,7 @@ export const getTransaction = {
 
   exportData: async (userName) => {
     try {
-      const response = await apiBackend.get(
+      const response = await apiBackend.post(
         '/v1/transaction/export-dump-data',
         {
           admin_user: userName,
