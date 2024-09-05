@@ -114,10 +114,13 @@ export const getTransaction = {
     }
   },
 
-  exportData: async () => {
+  exportData: async (userName) => {
     try {
       const response = await apiBackend.get(
         '/v1/transaction/export-dump-data',
+        {
+          admin_user: userName,
+        },
         {
           responseType: 'blob', // Menetapkan responseType ke 'blob'
         }
@@ -174,8 +177,6 @@ export const getTransaction = {
           },
         }
       );
-      // console.log(email);
-      console.log(response);
       return response.data;
     } catch (error) {
       console.error(
