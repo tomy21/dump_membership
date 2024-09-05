@@ -4,6 +4,7 @@ services:
   app:
     container_name: 'Frontend_dump'
     build: 
+      context: .
       dockerfile: ./Dockerfile
     # volumes:
     #   - .:/app
@@ -15,7 +16,7 @@ services:
     # command: npm install cookie-parser && npm start
     networks:
       - backend_network
-
+    command: ["serve", '-s', "build"]
 
 networks:
   backend_network:
