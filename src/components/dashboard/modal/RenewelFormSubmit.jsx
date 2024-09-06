@@ -28,7 +28,7 @@ const RenewalFormSubmit = ({
       'galihtanjungtresna'
     ).toString();
   };
-  console.log(transactionData);
+
   const handleSubmit = (e) => {
     e.preventDefault();
 

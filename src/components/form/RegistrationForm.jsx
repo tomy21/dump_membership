@@ -96,6 +96,14 @@ export default function RegistrationForm() {
     }
   };
 
+  const currencyFormat = (amount) => {
+    return parseInt(amount).toLocaleString('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    });
+  };
+
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     if (files.length > 0) {
@@ -273,7 +281,7 @@ export default function RegistrationForm() {
       setLoading(false);
       setShowModal(false);
     } catch (error) {
-      setError('Pendaftaran gagal. Silakan coba lagi.');
+      setError(`${error.message}`);
       setShowErrorPopup(true);
     } finally {
       setLoading(false);
@@ -329,14 +337,23 @@ export default function RegistrationForm() {
         className="sm:max-w-[90%] max-w-full mx-auto bg-white rounded-xl space-y-4 mt-10 md:max-w-[100%] m-0"
       >
         <div className="space-y-4">
-          <input
-            type="text"
-            name="NoCard"
-            placeholder="Nomor Kartu"
-            value={formData.NoCard}
-            onChange={handleInputChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
+          <div className="flex flex-col justify-start items-start">
+            <label
+              htmlFor="platNomor"
+              className="text-xs bg-blue-100 px-2 py-3 rounded-md mb-2 w-full"
+            >
+              Masukan no kartu jika sudah mempunyai member
+            </label>
+            <input
+              type="text"
+              name="NoCard"
+              placeholder="Nomor Kartu"
+              value={formData.NoCard}
+              onChange={handleInputChange}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
           <input
             type="text"
             name="fullname"
@@ -355,16 +372,24 @@ export default function RegistrationForm() {
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
-          <input
-            type="text"
-            name="phonenumber"
-            maxLength={18}
-            placeholder="No Handphone"
-            value={formData.phonenumber}
-            onChange={handlePhoneNumberChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            required
-          />
+          <div className="flex flex-col justify-start items-start">
+            <label
+              htmlFor="platNomor"
+              className="text-xs bg-blue-100 px-2 py-3 rounded-md mb-2 w-full"
+            >
+              Pastikan no handphone terhubung Whastsapp
+            </label>
+            <input
+              type="text"
+              name="phonenumber"
+              maxLength={18}
+              placeholder="No Handphone"
+              value={formData.phonenumber}
+              onChange={handlePhoneNumberChange}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </div>
 
           <label className="block text-gray-700">Lokasi:</label>
           <div onScroll={handleScroll}>
@@ -448,10 +473,10 @@ export default function RegistrationForm() {
               </div>
               {showInfo && (
                 <>
-                  <div className="absolute w-20 max-h-40 rounded-md bg-blue-100 right-5 -top-5 p-2">
+                  <div className="absolute w-60 max-h-72 rounded-md bg-blue-100 right-5 -top-24 p-2">
                     <img
-                      src={'/Picture1.jpg'}
-                      className="w-52 rounded-md"
+                      src={'/examplePlate.webp'}
+                      className="w-full rounded-md"
                       alt=""
                     />
                   </div>
@@ -556,7 +581,7 @@ export default function RegistrationForm() {
                 an. PT SKY PARKING UTAMA
               </p>
               <p className="text-xl font-semibold mb-2">{virtualAccount}</p>
-              <p className="text-xl font-semibold">Nominal: Rp {price}</p>
+              <p className="text-xl font-semibold">{currencyFormat(price)}</p>
             </div>
             <div className="mb-4">
               <input
@@ -634,12 +659,13 @@ export default function RegistrationForm() {
           className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 px-3"
           style={{ margin: 0 }}
         >
-          <div className="bg-white p-5 rounded-lg shadow-lg flex flex-col justify-center items-center space-y-4">
-            <GoAlert size={35} className="text-red-500" />
-            <h2 className="text-lg font-semibold mb-4">{error}</h2>
+          <div className="bg-white p-5 rounded-lg shadow-lg flex flex-col justify-center items-center space-y-4 text-center">
+            <GoAlert size={40} className="text-red-500" />
+            <h2 className="text-lg font-semibold mb-4">Pendaftaran Gagal</h2>
+            <h2 className="text-sm mb-4">{error}</h2>
             <button
               onClick={closeErrorPopup}
-              className="bg-red-500 text-white p-3 rounded-lg"
+              className="bg-red-500 text-white p-3 rounded-lg w-full"
             >
               OK
             </button>
