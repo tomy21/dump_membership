@@ -23,13 +23,18 @@ const CustomerForm = () => {
       <div className="border-b border-gray-400"></div>
 
       <div className="flex flex-col justify-center mb-4">
-        <label className="text-gray-700 text-sm font-bold mb-2">
+        <label
+          htmlFor="layanan"
+          className="text-gray-700 text-sm font-bold mb-2"
+        >
           Pilih Layanan:
         </label>
         <select
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           value={formType}
           onChange={handleFormTypeChange}
+          id="layanan"
+          name="layanan"
         >
           <option className="text-sm" value="">
             Pilih Layanan

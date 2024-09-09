@@ -5,6 +5,7 @@ import { GoAlert, GoChecklist } from 'react-icons/go';
 import { useNavigate } from 'react-router-dom';
 import Loading from '../Loading';
 import { IoMdInformationCircleOutline } from 'react-icons/io';
+import { CiLocationOn } from 'react-icons/ci';
 
 export default function RegistrationForm() {
   const [formData, setFormData] = useState({
@@ -43,6 +44,7 @@ export default function RegistrationForm() {
   const [error, setError] = useState(null);
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [locationName, setLocationName] = useState('');
   const navigate = useNavigate();
 
   const loadLocations = async () => {
@@ -78,7 +80,8 @@ export default function RegistrationForm() {
           location.locationCode ===
           (name === 'locationCode' ? value : formData.locationCode)
       );
-      // console.log('quota', selectedLocation);
+      console.log('quota', selectedLocation);
+      setLocationName(selectedLocation?.locationName);
       setQuota(selectedLocation);
       setVirtualAccount(selectedLocation?.virtualAccount);
     }
@@ -339,7 +342,7 @@ export default function RegistrationForm() {
         <div className="space-y-4">
           <div className="flex flex-col justify-start items-start">
             <label
-              htmlFor="platNomor"
+              htmlFor="NoCard"
               className="text-xs bg-blue-100 px-2 py-3 rounded-md mb-2 w-full"
             >
               Masukan no kartu jika sudah mempunyai member
@@ -347,6 +350,7 @@ export default function RegistrationForm() {
             <input
               type="text"
               name="NoCard"
+              id="NoCard"
               placeholder="Nomor Kartu"
               value={formData.NoCard}
               onChange={handleInputChange}
@@ -357,6 +361,7 @@ export default function RegistrationForm() {
           <input
             type="text"
             name="fullname"
+            id="fullname"
             placeholder="Nama Member"
             value={formData.fullname}
             onChange={handleInputChange}
@@ -370,11 +375,12 @@ export default function RegistrationForm() {
             value={formData.email}
             onChange={handleInputChange}
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            autoComplete="EmailRegister"
             required
           />
           <div className="flex flex-col justify-start items-start">
             <label
-              htmlFor="platNomor"
+              htmlFor="phonenumber"
               className="text-xs bg-blue-100 px-2 py-3 rounded-md mb-2 w-full"
             >
               Pastikan no handphone terhubung Whastsapp
@@ -382,6 +388,7 @@ export default function RegistrationForm() {
             <input
               type="text"
               name="phonenumber"
+              id="phonenumber"
               maxLength={18}
               placeholder="No Handphone"
               value={formData.phonenumber}
@@ -391,11 +398,14 @@ export default function RegistrationForm() {
             />
           </div>
 
-          <label className="block text-gray-700">Lokasi:</label>
+          <label htmlFor="locationCode" className="block text-gray-700">
+            Lokasi:
+          </label>
           <div onScroll={handleScroll}>
             <select
               name="locationCode"
               value={formData.locationCode}
+              id="locationCode"
               onChange={handleInputChange}
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
@@ -412,10 +422,13 @@ export default function RegistrationForm() {
 
           {formData.locationCode && (
             <>
-              <label className="block text-gray-700">Tipe Kendaraan:</label>
+              <label htmlFor="vehicletype" className="block text-gray-700">
+                Tipe Kendaraan:
+              </label>
               <select
                 name="vehicletype"
                 value={formData.vehicletype}
+                id="vehicletype"
                 onChange={handleInputChange}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                 required
@@ -428,7 +441,7 @@ export default function RegistrationForm() {
                   Mobil{' '}
                   {quota?.QuotaMobilRemaining === 0
                     ? 'Quota habis'
-                    : `(${quota.QuotaMobilRemaining} free)`}
+                    : `(${quota.QuotaMobilRemaining} slot)`}
                 </option>
                 <option
                   value="MOTOR"
@@ -437,7 +450,7 @@ export default function RegistrationForm() {
                   Motor{' '}
                   {quota?.QuotaMotorRemaining === 0
                     ? 'Quota habis'
-                    : `(${quota.QuotaMotorRemaining} free)`}
+                    : `(${quota.QuotaMotorRemaining} slot)`}
                 </option>
               </select>
             </>
@@ -463,7 +476,7 @@ export default function RegistrationForm() {
           />
 
           <div className="space-y-2 relative">
-            <label className="block text-gray-700">
+            <label htmlFor="licensePlate" className="block text-gray-700">
               <div className="flex flex-row justify-between items-center">
                 <p>Upload Foto Plat Nomor:</p>
                 <IoMdInformationCircleOutline
@@ -486,6 +499,7 @@ export default function RegistrationForm() {
             <input
               type="file"
               name="licensePlate"
+              id="licensePlate"
               className="block w-full text-gray-900 p-2 border border-gray-300 rounded-lg cursor-pointer focus:outline-none"
               onChange={handlePlatUpload}
               accept=".png, .jpg, .jpeg"
@@ -495,6 +509,8 @@ export default function RegistrationForm() {
               type="text"
               value={platNumber}
               placeholder="Plat Nomor"
+              name="platNumber"
+              id="plateNumber"
               className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none"
               disabled={!editEnabled}
               readOnly
@@ -515,10 +531,13 @@ export default function RegistrationForm() {
             )}
           </div>
           <div className="space-y-2">
-            <label className="block text-gray-700">Upload STNK:</label>
+            <label htmlFor="stnk" className="block text-gray-700">
+              Upload STNK:
+            </label>
             <input
               type="file"
               name="stnk"
+              id="stnk"
               className="block w-full text-gray-900 p-2 border border-gray-300 rounded-lg cursor-pointer focus:outline-none"
               onChange={handleFileChange}
               accept=".png, .jpg, .jpeg"
@@ -575,10 +594,14 @@ export default function RegistrationForm() {
             <h2 className="text-lg font-semibold mb-4">
               Upload Bukti Pembayaran
             </h2>
+            <div className="flex flex-row justify-start items-center space-x-2 font-semibold mb-4">
+              <CiLocationOn />
+              <span>{locationName}</span>
+            </div>
             <div className="mb-4">
               <h1>Silahkan lakukan pembayaran ke virtual account berikut: </h1>
               <p className="text-base font-semibold my-3">
-                an. PT SKY PARKING UTAMA
+                AN/. PT SKY PARKING UTAMA
               </p>
               <p className="text-xl font-semibold mb-2">{virtualAccount}</p>
               <p className="text-xl font-semibold">{currencyFormat(price)}</p>
@@ -632,9 +655,21 @@ export default function RegistrationForm() {
                     Pendaftaran kamu berhasil
                   </h2>
                 </div>
-                <p className="text-center">
-                  Mohon ditunggu untuk informasi selanjutnya
-                </p>
+                {formData.membershipStatus === 'new' ? (
+                  <>
+                    <p className="text-center">
+                      Mohon ditunggu untuk informasi selanjutnya dan pastikan
+                      nomor anda terhubung dengan whatsapp
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-center">
+                      Mohon ditunggu untuk informasi pengaktifan member anda dan
+                      pastikan nomor handphon terhubung dengan whatsapp
+                    </p>
+                  </>
+                )}
                 <button
                   onClick={closeModalSubmit}
                   className="bg-green-300 w-full rounded-md py-3"

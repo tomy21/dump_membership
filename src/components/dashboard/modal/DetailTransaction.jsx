@@ -4,6 +4,10 @@ import { IoMdCheckmarkCircleOutline } from 'react-icons/io';
 import { format } from 'date-fns';
 import PropTypes from 'prop-types';
 import { RoleContext } from '../../../pages/RoleContext';
+import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
+import Cookies from 'js-cookie';
+import { GoAlert } from 'react-icons/go';
 
 export default function DetailTransaction({ idTransaksi, isClosed }) {
   const [data, setData] = useState(null); // Mengubah dari string kosong menjadi null untuk data
@@ -16,8 +20,27 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdateSuccess, setIsUpdateSuccess] = useState(false);
+  const [isUpdateError, setIsUpdateError] = useState(false);
   const [searchError, setSearchError] = useState(null);
+  const [userName, setUserName] = useState('-');
+  const [showNominalModal, setShowNominalModal] = useState(false);
+  const [nominalValue, setNominalValue] = useState('');
+  const [selectedResult, setSelectedResult] = useState(null);
   const roleId = useContext(RoleContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const token = Cookies.get('refreshToken');
+      if (!token) {
+        navigate('/');
+      } else {
+        const decodedToken = jwtDecode(token);
+        setUserName(decodedToken.sub);
+      }
+    };
+    fetchToken();
+  }, [navigate]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,6 +60,14 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
     setNoCard(e.target.value);
   };
 
+  const currencyFormat = (amount) => {
+    return parseInt(amount).toLocaleString('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    });
+  };
+
   const handleNoCardUpdate = async () => {
     try {
       const formData = new FormData();
@@ -54,28 +85,42 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
     }
   };
 
-  const handleUpdatePembayaran = async () => {
+  const handleUpdatePembayaran = async (result) => {
     setIsLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append('statusProgress', 'progress');
-
-      await getTransaction.updateById(idTransaksi, formData);
-      await getTransaction.updatedPayment(idTransaksi);
-
-      setIsSuccess(true);
-      setIsUpdateSuccess(true);
-
+    console.log('Updating payment for:', result, 'with nominal:', nominalValue);
+    if (!nominalValue || nominalValue != parseInt(result.nominal)) {
+      setIsLoading(true);
+      setIsUpdateError(true);
       setTimeout(() => {
-        setIsSuccess(false);
-        setIsUpdateSuccess(false);
-        setShowSearchModal(false);
+        // setIsUpdateError(true);
         isClosed();
       }, 3000);
-    } catch (error) {
-      console.error('Gagal memperbarui status pembayaran:', error);
-    } finally {
-      setIsLoading(false); // Mengakhiri loading setelah proses selesai
+    } else {
+      try {
+        const formData = new FormData();
+        formData.append('statusProgress', 'progress');
+
+        await getTransaction.updateById(idTransaksi, formData);
+        await getTransaction.updatedPayment(
+          idTransaksi,
+          userName,
+          nominalValue
+        );
+
+        setIsSuccess(true);
+        setIsUpdateSuccess(true);
+
+        setTimeout(() => {
+          setIsSuccess(false);
+          setIsUpdateSuccess(false);
+          setShowSearchModal(false);
+          isClosed();
+        }, 3000);
+      } catch (error) {
+        console.error('Gagal memperbarui status pembayaran:', error);
+      } finally {
+        setIsLoading(false); // Mengakhiri loading setelah proses selesai
+      }
     }
   };
 
@@ -346,14 +391,17 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                   <div className="flex justify-between items-center">
                     <div className="flex flex-col justify-start items-start">
                       <h1 className="text-sm">{result.description}</h1>
-                      <h1 className="text-sm">{result.nominal}</h1>
+                      <h1 className="text-sm">
+                        {currencyFormat(result.nominal)}
+                      </h1>
                       <h1 className="text-sm">
                         {format(new Date(result.dateinsert), 'dd MMMM yyyy')}
                       </h1>
                     </div>
                     <button
                       onClick={() => {
-                        handleUpdatePembayaran();
+                        setShowNominalModal(true); // Trigger the nominal modal
+                        setSelectedResult(result); // Set the selected result for which payment is being updated
                       }}
                       className="text-green-500 hover:text-green-700 bg-green-100 px-3 py-2 text-xs"
                     >
@@ -367,14 +415,55 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
         </div>
       )}
 
+      {showNominalModal && (
+        <div className="fixed inset-0 z-40 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-4 rounded-lg shadow-lg w-[90%] max-w-md relative">
+            <button
+              onClick={() => setShowNominalModal(false)}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+            >
+              &times;
+            </button>
+            <h2 className="text-lg font-semibold mb-4">Update Payment</h2>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleUpdatePembayaran(selectedResult); // Handle the update with the nominal value
+              }}
+            >
+              <label
+                htmlFor="nominal"
+                className="block text-sm font-medium mb-2"
+              >
+                Enter Nominal:
+              </label>
+              <input
+                id="nominal"
+                type="number"
+                className="w-full p-2 border rounded-lg"
+                value={nominalValue}
+                onChange={(e) => setNominalValue(e.target.value)} // Store the input value
+                required
+              />
+              <button
+                type="submit"
+                className="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg"
+              >
+                Update Payment
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Image Modal */}
       {selectedImage && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center">
-          <div className="relative">
+          <div className="relative bg-slate-600 p-4 rounded-lg shadow-lg max-w-screen-sm max-h-screen">
             <img
               src={selectedImage}
               alt="Full Size"
-              className="max-w-full max-h-full rounded-lg shadow-lg w-[80%] h-[70%]"
+              className="object-contain max-w-full max-h-[80vh] rounded-lg shadow-lg"
             />
             <button
               className="absolute top-2 right-2 text-white text-3xl"
@@ -403,6 +492,17 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
             <IoMdCheckmarkCircleOutline className="text-green-500 text-7xl mb-4" />
             <h2 className="text-lg font-semibold">
               Pembayaran Berhasil Diperbarui
+            </h2>
+          </div>
+        </div>
+      )}
+
+      {isUpdateError && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center flex flex-col justify-center items-center w-[50%]">
+            <GoAlert size={40} className="text-red-500 mb-5" />
+            <h2 className="text-sm w-full">
+              Pembayaran gagal di konfirmasi cek kembali nominal inputan anda
             </h2>
           </div>
         </div>

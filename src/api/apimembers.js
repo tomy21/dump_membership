@@ -102,10 +102,15 @@ export const getTransaction = {
       throw error.response.data;
     }
   },
-  updatedPayment: async (idTransaction) => {
+
+  updatedPayment: async (idTransaction, username, paidAmount) => {
     try {
       const response = await apiBackend.put(
-        `/v1/transaction/pay/${idTransaction}`
+        `/v1/transaction/pay/${idTransaction}`,
+        {
+          ApprovedBy: username,
+          paidAmount: paidAmount,
+        }
       );
       console.log(response);
       return response.data;

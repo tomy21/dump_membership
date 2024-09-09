@@ -84,7 +84,7 @@ const RenewalFormSubmit = ({
             </span>
           </p>
 
-          <label className="block text-gray-700 mt-4">
+          <label htmlFor="paymentFile" className="block text-gray-700 mt-4">
             Upload Bukti Transfer:
           </label>
           <input

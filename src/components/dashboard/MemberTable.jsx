@@ -377,7 +377,7 @@ const MemberTable = () => {
                                 </button>
                               )}
                             </>
-                          ) : (
+                          ) : member.statusProgress === 'progress' ? (
                             <>
                               {isLoading ? (
                                 <FaSpinner className="animate-spin flex justify-center" />
@@ -390,6 +390,8 @@ const MemberTable = () => {
                                 </button>
                               )}
                             </>
+                          ) : (
+                            ''
                           )}
                         </>
                       )}
