@@ -87,7 +87,7 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
 
   const handleUpdatePembayaran = async (result) => {
     setIsLoading(true);
-    console.log('Updating payment for:', result, 'with nominal:', nominalValue);
+
     if (!nominalValue || nominalValue != parseInt(result.nominal)) {
       setIsLoading(true);
       setIsUpdateError(true);

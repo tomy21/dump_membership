@@ -52,7 +52,6 @@ export default function RegistrationForm() {
     setLoading(true);
     try {
       const response = await getTransaction.getLocation();
-      console.log('Response from API:', response);
       setLocations(response.data.items);
       setHasMore(page < response.data.totalPages);
     } catch (error) {
@@ -80,7 +79,6 @@ export default function RegistrationForm() {
           location.locationCode ===
           (name === 'locationCode' ? value : formData.locationCode)
       );
-      console.log('quota', selectedLocation);
       setLocationName(selectedLocation?.locationName);
       setQuota(selectedLocation);
       setVirtualAccount(selectedLocation?.virtualAccount);
