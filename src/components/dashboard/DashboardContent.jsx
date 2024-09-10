@@ -16,7 +16,6 @@ const DashboardContent = () => {
     const fetchMetrics = async () => {
       try {
         const responseMetric = await getTransaction.getMetric();
-        console.log(responseMetric);
         setDataCount(responseMetric);
       } catch (error) {
         console.error('Error fetching data:', error);

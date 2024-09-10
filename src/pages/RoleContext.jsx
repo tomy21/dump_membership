@@ -17,7 +17,6 @@ export const RoleProvider = ({ children }) => {
         const userId = decodedToken.Id;
         try {
           const responseRole = await apiUsers.getRoleById(userId);
-          console.log('data1', responseRole);
           setRoleId(responseRole.data?.RoleId);
         } catch (error) {
           console.error('Error fetching role:', error);

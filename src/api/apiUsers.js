@@ -101,7 +101,6 @@ export const apiUsers = {
       const response = await apiClient.get(
         `/v01/member/api/auth/rolesDetail/${id}`
       );
-      console.log('roleId', response);
       return response.data.data;
     } catch (error) {
       throw error.response.data;

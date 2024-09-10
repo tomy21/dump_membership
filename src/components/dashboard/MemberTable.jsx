@@ -26,6 +26,7 @@ const MemberTable = () => {
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [userName, setUserName] = useState('-');
+  const [show404Popup, setShow404Popup] = useState(false);
   const roleId = useContext(RoleContext);
   const navigate = useNavigate();
 
@@ -108,7 +109,6 @@ const MemberTable = () => {
       const blob = new Blob([response.data], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
-
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -117,8 +117,13 @@ const MemberTable = () => {
       a.click();
       a.remove();
     } catch (error) {
-      console.error('Error exporting data:', error);
+      console.log(error);
+      setShow404Popup(true);
     }
+  };
+
+  const close404Popup = () => {
+    setShow404Popup(false);
   };
 
   const handlePageClick = (page) => {
@@ -514,6 +519,26 @@ const MemberTable = () => {
             <button
               onClick={closeErrorPopup}
               className="bg-red-500 text-white p-3 rounded-lg"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
+      {show404Popup && (
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 px-3"
+          style={{ margin: 0 }}
+        >
+          <div className="bg-white p-5 rounded-lg shadow-lg flex flex-col justify-center items-center space-y-4">
+            <GoAlert size={40} className="text-red-500" />
+            <h2 className="text-lg font-semibold mb-4">
+              {'Tidak ada data yang di export'}
+            </h2>
+            <button
+              onClick={close404Popup}
+              className="bg-red-500 text-white p-3 rounded-lg w-full"
             >
               OK
             </button>
