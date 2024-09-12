@@ -600,7 +600,7 @@ export default function RegistrationForm() {
             <div className="mb-4">
               <h1>Silahkan lakukan pembayaran ke virtual account berikut: </h1>
               <p className="text-base font-semibold my-3">
-                AN/. PT SKY PARKING UTAMA
+                AN/. UPHC (Membership UPH Collage)
               </p>
               <p className="text-xl font-semibold mb-2">{virtualAccount}</p>
               <p className="text-xl font-semibold">{currencyFormat(price)}</p>
