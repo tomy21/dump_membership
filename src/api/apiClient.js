@@ -10,6 +10,6 @@ export const apiClient = axios.create({
 });
 
 export const apiBackend = axios.create({
-  baseURL: 'https://api-inject.skyparking.online',
+  baseURL: 'https://apiinject.skyparking.online',
   withCredentials: true,
 });
