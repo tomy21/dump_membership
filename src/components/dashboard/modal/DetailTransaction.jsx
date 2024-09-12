@@ -285,14 +285,14 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                       <img
                         src={
                           data.stnk
-                            ? `https://devapi-injectmember.skyparking.online/uploads/stnk/${data.stnk}`
+                            ? `https://apiinject.skyparking.online/uploads/stnk/${data.stnk}`
                             : '/public/no-image.png'
                         }
                         alt="STNK"
                         className="w-32 rounded-md shadow-md cursor-pointer"
                         onClick={() =>
                           handleImageClick(
-                            `https://devapi-injectmember.skyparking.online/uploads/stnk/${data.stnk}`
+                            `https://apiinject.skyparking.online/uploads/stnk/${data.stnk}`
                           )
                         }
                       />
@@ -303,14 +303,14 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                       <img
                         src={
                           data.licensePlate
-                            ? `https://devapi-injectmember.skyparking.online/uploads/licensePlate/${data.licensePlate}`
+                            ? `https://apiinject.skyparking.online/uploads/licensePlate/${data.licensePlate}`
                             : '/public/no-image.png'
                         }
                         alt="Plat Nomor"
                         className="w-32 rounded-md shadow-md cursor-pointer"
                         onClick={() =>
                           handleImageClick(
-                            `https://devapi-injectmember.skyparking.online/uploads/licensePlate/${data.licensePlate}`
+                            `https://apiinject.skyparking.online/uploads/licensePlate/${data.licensePlate}`
                           )
                         }
                       />
@@ -323,14 +323,14 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                       <img
                         src={
                           data.paymentFile
-                            ? `https://devapi-injectmember.skyparking.online/uploads/transfer/${data.paymentFile}`
+                            ? `https://apiinject.skyparking.online/uploads/transfer/${data.paymentFile}`
                             : '/public/no-image.png'
                         }
                         alt="Bukti Pembayaran"
                         className="w-32 rounded-md shadow-md cursor-pointer"
                         onClick={() =>
                           handleImageClick(
-                            `https://devapi-injectmember.skyparking.online/uploads/transfer/${data.paymentFile}`
+                            `https://apiinject.skyparking.online/uploads/transfer/${data.paymentFile}`
                           )
                         }
                       />
