@@ -170,7 +170,7 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
   return (
     <>
       <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-50 px-2">
-        <div className="bg-white p-8 rounded-lg shadow-lg w-96 sm:w-[50%] relative">
+        <div className="bg-white p-8 rounded-lg shadow-lg w-96 sm:w-[50%] relative max-h-[70%] overflow-auto">
           <button
             onClick={isClosed}
             className="absolute text-3xl top-2 right-2 text-gray-500 hover:text-gray-700"
