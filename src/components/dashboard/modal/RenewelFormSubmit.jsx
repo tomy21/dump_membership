@@ -76,6 +76,9 @@ const RenewalFormSubmit = ({
           </p>
 
           <p className="mt-3">Silahkan transfer ke no VA berikut</p>
+          <p className="text-base font-semibold">
+            an.UPHC (Membership UPH Collage)
+          </p>
           <p className="text-base font-semibold">{virtualAccount}</p>
           <p>
             Nominal :{' '}
