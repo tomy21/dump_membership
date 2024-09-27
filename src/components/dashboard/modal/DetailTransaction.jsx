@@ -233,7 +233,7 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                       <h1 className="text-slate-400 text-sm">{data.noRek}</h1>
                     </div>
 
-                    {roleId === 6 ? (
+                    {roleId === 5 ? (
                       ''
                     ) : (
                       <>
@@ -341,7 +341,7 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
 
                   {/* Search Section */}
 
-                  {roleId !== 6 ? (
+                  {roleId !== 5 ? (
                     ''
                   ) : (
                     <>
