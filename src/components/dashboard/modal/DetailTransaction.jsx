@@ -428,23 +428,28 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                handleUpdatePembayaran(selectedResult); // Handle the update with the nominal value
+                handleUpdatePembayaran(selectedResult); // Handle the update with the selected value
               }}
             >
               <label
                 htmlFor="nominal"
                 className="block text-sm font-medium mb-2"
               >
-                Enter Nominal:
+                Select Nominal:
               </label>
-              <input
+              <select
                 id="nominal"
-                type="number"
                 className="w-full p-2 border rounded-lg"
                 value={nominalValue}
-                onChange={(e) => setNominalValue(e.target.value)} // Store the input value
+                onChange={(e) => setNominalValue(e.target.value)} // Store the selected value
                 required
-              />
+              >
+                <option value="">-- Select an option --</option>{' '}
+                {/* Placeholder */}
+                <option value="300000">300000</option>
+                <option value="80000">80000</option>
+              </select>
+
               <button
                 type="submit"
                 className="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg"
