@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { getTransaction } from '../../api/apimembers';
 import Tabs from '../Tabs';
 import { RoleContext } from '../../pages/RoleContext';
+import { format } from 'date-fns';
 
 const MemberTable = () => {
   const [data, setData] = useState([]);
@@ -279,7 +280,7 @@ const MemberTable = () => {
                   />
                 </td>
                 <td className="py-2 px-4 border-b text-sm text-gray-700">
-                  {member.createdAt}
+                  {format(member.createdAt, 'dd MMM yyyy')}
                 </td>
                 <td className="py-2 px-4 border-b text-sm text-gray-700">
                   {member.NoRef}
