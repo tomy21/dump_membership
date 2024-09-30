@@ -240,6 +240,9 @@ const MemberTable = () => {
               />
             </th>
             <th className="py-3 px-4 bg-gray-100 border-b text-left text-sm font-semibold text-gray-700">
+              Tanggal Input
+            </th>
+            <th className="py-3 px-4 bg-gray-100 border-b text-left text-sm font-semibold text-gray-700">
               No Antrian
             </th>
             <th className="py-3 px-4 bg-gray-100 border-b text-left text-sm font-semibold text-gray-700">
@@ -274,6 +277,9 @@ const MemberTable = () => {
                     checked={selectedItems.includes(member.id)}
                     onChange={() => handleCheckboxChange(member.id)}
                   />
+                </td>
+                <td className="py-2 px-4 border-b text-sm text-gray-700">
+                  {member.createdAt}
                 </td>
                 <td className="py-2 px-4 border-b text-sm text-gray-700">
                   {member.NoRef}
