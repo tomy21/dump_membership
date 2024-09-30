@@ -434,7 +434,7 @@ const MemberTable = () => {
               onChange={(e) => setRowsPerPage(Number(e.target.value))}
               className="border p-2 rounded-md"
             >
-              {[10, 20, 30, 40, 50].map((size) => (
+              {[10, 20, 30, 40, 50, 70, 100, 1000].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>
