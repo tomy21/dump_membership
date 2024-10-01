@@ -58,6 +58,17 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
     fetchData();
   }, [idTransaksi]);
 
+  const handleSelectChange = (e) => {
+    const value = e.target.value;
+    if (value === 'custom') {
+      setIsCustom(true); // Tampilkan input manual jika user memilih "custom"
+      setNominalValue(''); // Kosongkan nominalValue untuk input manual
+    } else {
+      setIsCustom(false); // Sembunyikan input manual
+      setNominalValue(value); // Set nominalValue dari dropdown
+    }
+  };
+
   const handleNoCardChange = (e) => {
     setNoCard(e.target.value);
   };
@@ -144,17 +155,6 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
         return 'text-green-500';
       default:
         return 'text-gray-500';
-    }
-  };
-
-  const handleSelectChange = (e) => {
-    const value = e.target.value;
-    if (value === 'custom') {
-      setIsCustom(true); // Tampilkan input manual jika user memilih "custom"
-      setNominalValue(''); // Kosongkan nominalValue untuk input manual
-    } else {
-      setIsCustom(false); // Sembunyikan input manual
-      setNominalValue(value); // Set nominalValue dari dropdown
     }
   };
 
