@@ -26,6 +26,8 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
   const [showNominalModal, setShowNominalModal] = useState(false);
   const [nominalValue, setNominalValue] = useState('');
   const [selectedResult, setSelectedResult] = useState(null);
+  const [isCustom, setIsCustom] = useState(false);
+  const [customValue, setCustomValue] = useState('');
   const roleId = useContext(RoleContext);
   const navigate = useNavigate();
 
@@ -142,6 +144,17 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
         return 'text-green-500';
       default:
         return 'text-gray-500';
+    }
+  };
+
+  const handleSelectChange = (e) => {
+    const value = e.target.value;
+    if (value === 'custom') {
+      setIsCustom(true); // Tampilkan input manual jika user memilih "custom"
+      setNominalValue(''); // Kosongkan nominalValue untuk input manual
+    } else {
+      setIsCustom(false); // Sembunyikan input manual
+      setNominalValue(value); // Set nominalValue dari dropdown
     }
   };
 
@@ -440,15 +453,27 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
               <select
                 id="nominal"
                 className="w-full p-2 border rounded-lg"
-                value={nominalValue}
-                onChange={(e) => setNominalValue(e.target.value)} // Store the selected value
+                value={nominalValue || 'custom'}
+                onChange={handleSelectChange}
                 required
               >
-                <option value="">-- Select an option --</option>{' '}
-                {/* Placeholder */}
+                <option value="">-- Select an option --</option>
                 <option value="300000">300000</option>
                 <option value="80000">80000</option>
+                <option value="custom">Other (Enter manually)</option>
               </select>
+
+              {/* Input manual yang muncul jika "Other" dipilih */}
+              {isCustom && (
+                <input
+                  type="number"
+                  className="mt-2 w-full p-2 border rounded-lg"
+                  placeholder="Enter custom nominal"
+                  value={customValue}
+                  onChange={(e) => setCustomValue(e.target.value)} // Set custom nominal value
+                  required
+                />
+              )}
 
               <button
                 type="submit"
