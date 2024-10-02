@@ -453,7 +453,7 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
               <select
                 id="nominal"
                 className="w-full p-2 border rounded-lg"
-                value={nominalValue || 'custom'}
+                value={nominalValue}
                 onChange={handleSelectChange}
                 required
               >
