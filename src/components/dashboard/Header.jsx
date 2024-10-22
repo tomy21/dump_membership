@@ -70,7 +70,7 @@ const Header = () => {
             >
               Home
             </button>
-            {roleId === 6 ? (
+            {roleId === 5 ? (
               <>
                 <button
                   onClick={() => navigate('/mutasi')}
