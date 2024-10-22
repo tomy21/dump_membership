@@ -21,4 +21,4 @@ RUN npm i -g serve
 EXPOSE 4002
 
 # Menetapkan perintah untuk menjalankan aplikasi di dalam container
-CMD ["serve", '-s', "build"]
+CMD ["serve", "-s", "build"]

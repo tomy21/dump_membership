@@ -26,6 +26,8 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
   const [showNominalModal, setShowNominalModal] = useState(false);
   const [nominalValue, setNominalValue] = useState('');
   const [selectedResult, setSelectedResult] = useState(null);
+  const [isCustom, setIsCustom] = useState(false);
+  const [customValue, setCustomValue] = useState('');
   const roleId = useContext(RoleContext);
   const navigate = useNavigate();
 
@@ -55,6 +57,17 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
 
     fetchData();
   }, [idTransaksi]);
+
+  const handleSelectChange = (e) => {
+    const value = e.target.value;
+    if (value === 'custom') {
+      setIsCustom(true); // Tampilkan input manual jika user memilih "custom"
+      setNominalValue(''); // Kosongkan nominalValue untuk input manual
+    } else {
+      setIsCustom(false); // Sembunyikan input manual
+      setNominalValue(value); // Set nominalValue dari dropdown
+    }
+  };
 
   const handleNoCardChange = (e) => {
     setNoCard(e.target.value);
@@ -170,7 +183,7 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
   return (
     <>
       <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-50 px-2">
-        <div className="bg-white p-8 rounded-lg shadow-lg w-96 sm:w-[50%] relative">
+        <div className="bg-white p-8 rounded-lg shadow-lg w-96 sm:w-[50%] relative max-h-[70%] overflow-auto">
           <button
             onClick={isClosed}
             className="absolute text-3xl top-2 right-2 text-gray-500 hover:text-gray-700"
@@ -233,7 +246,7 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                       <h1 className="text-slate-400 text-sm">{data.noRek}</h1>
                     </div>
 
-                    {roleId === 6 ? (
+                    {roleId === 5 ? (
                       ''
                     ) : (
                       <>
@@ -285,14 +298,14 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                       <img
                         src={
                           data.stnk
-                            ? `https://devapi-injectmember.skyparking.online/uploads/stnk/${data.stnk}`
+                            ? `https://apiinject.skyparking.online/uploads/stnk/${data.stnk}`
                             : '/public/no-image.png'
                         }
                         alt="STNK"
                         className="w-32 rounded-md shadow-md cursor-pointer"
                         onClick={() =>
                           handleImageClick(
-                            `https://devapi-injectmember.skyparking.online/uploads/stnk/${data.stnk}`
+                            `https://apiinject.skyparking.online/uploads/stnk/${data.stnk}`
                           )
                         }
                       />
@@ -303,14 +316,14 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                       <img
                         src={
                           data.licensePlate
-                            ? `https://devapi-injectmember.skyparking.online/uploads/licensePlate/${data.licensePlate}`
+                            ? `https://apiinject.skyparking.online/uploads/licensePlate/${data.licensePlate}`
                             : '/public/no-image.png'
                         }
                         alt="Plat Nomor"
                         className="w-32 rounded-md shadow-md cursor-pointer"
                         onClick={() =>
                           handleImageClick(
-                            `https://devapi-injectmember.skyparking.online/uploads/licensePlate/${data.licensePlate}`
+                            `https://apiinject.skyparking.online/uploads/licensePlate/${data.licensePlate}`
                           )
                         }
                       />
@@ -323,14 +336,14 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                       <img
                         src={
                           data.paymentFile
-                            ? `https://devapi-injectmember.skyparking.online/uploads/transfer/${data.paymentFile}`
+                            ? `https://apiinject.skyparking.online/uploads/transfer/${data.paymentFile}`
                             : '/public/no-image.png'
                         }
                         alt="Bukti Pembayaran"
                         className="w-32 rounded-md shadow-md cursor-pointer"
                         onClick={() =>
                           handleImageClick(
-                            `https://devapi-injectmember.skyparking.online/uploads/transfer/${data.paymentFile}`
+                            `https://apiinject.skyparking.online/uploads/transfer/${data.paymentFile}`
                           )
                         }
                       />
@@ -341,7 +354,7 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
 
                   {/* Search Section */}
 
-                  {roleId !== 6 ? (
+                  {roleId !== 5 ? (
                     ''
                   ) : (
                     <>
@@ -428,23 +441,40 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                handleUpdatePembayaran(selectedResult); // Handle the update with the nominal value
+                handleUpdatePembayaran(selectedResult); // Handle the update with the selected value
               }}
             >
               <label
                 htmlFor="nominal"
                 className="block text-sm font-medium mb-2"
               >
-                Enter Nominal:
+                Select Nominal:
               </label>
-              <input
+              <select
                 id="nominal"
-                type="number"
                 className="w-full p-2 border rounded-lg"
-                value={nominalValue}
-                onChange={(e) => setNominalValue(e.target.value)} // Store the input value
+                value={nominalValue || 'custom'}
+                onChange={handleSelectChange}
                 required
-              />
+              >
+                <option value="">-- Select an option --</option>
+                <option value="300000">300000</option>
+                <option value="80000">80000</option>
+                <option value="custom">Other (Enter manually)</option>
+              </select>
+
+              {/* Input manual yang muncul jika "Other" dipilih */}
+              {isCustom && (
+                <input
+                  type="number"
+                  className="mt-2 w-full p-2 border rounded-lg"
+                  placeholder="Enter custom nominal"
+                  value={customValue}
+                  onChange={(e) => setCustomValue(e.target.value)} // Set custom nominal value
+                  required
+                />
+              )}
+
               <button
                 type="submit"
                 className="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg"

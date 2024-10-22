@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { getTransaction } from '../../api/apimembers';
 import Tabs from '../Tabs';
 import { RoleContext } from '../../pages/RoleContext';
+import { format } from 'date-fns';
 
 const MemberTable = () => {
   const [data, setData] = useState([]);
@@ -240,6 +241,9 @@ const MemberTable = () => {
               />
             </th>
             <th className="py-3 px-4 bg-gray-100 border-b text-left text-sm font-semibold text-gray-700">
+              Tanggal Input
+            </th>
+            <th className="py-3 px-4 bg-gray-100 border-b text-left text-sm font-semibold text-gray-700">
               No Antrian
             </th>
             <th className="py-3 px-4 bg-gray-100 border-b text-left text-sm font-semibold text-gray-700">
@@ -274,6 +278,9 @@ const MemberTable = () => {
                     checked={selectedItems.includes(member.id)}
                     onChange={() => handleCheckboxChange(member.id)}
                   />
+                </td>
+                <td className="py-2 px-4 border-b text-sm text-gray-700">
+                  {format(member.createdAt, 'dd MMM yyyy')}
                 </td>
                 <td className="py-2 px-4 border-b text-sm text-gray-700">
                   {member.NoRef}
@@ -434,7 +441,7 @@ const MemberTable = () => {
               onChange={(e) => setRowsPerPage(Number(e.target.value))}
               className="border p-2 rounded-md"
             >
-              {[10, 20, 30, 40, 50].map((size) => (
+              {[10, 20, 30, 40, 50, 70, 100, 1000].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>

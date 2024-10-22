@@ -474,26 +474,27 @@ export default function RegistrationForm() {
           />
 
           <div className="space-y-2 relative">
-            <label htmlFor="licensePlate" className="block text-gray-700">
-              <div className="flex flex-row justify-between items-center">
+            <div className="flex flex-row justify-between items-center">
+              <label htmlFor="licensePlate" className="block text-gray-700">
                 <p>Upload Foto Plat Nomor:</p>
-                <IoMdInformationCircleOutline
-                  className="hover:text-blue-600"
-                  onClick={handleInfo}
-                />
-              </div>
-              {showInfo && (
-                <>
-                  <div className="absolute w-60 max-h-72 rounded-md bg-blue-100 right-5 -top-24 p-2">
-                    <img
-                      src={'/examplePlate.webp'}
-                      className="w-full rounded-md"
-                      alt=""
-                    />
-                  </div>
-                </>
-              )}
-            </label>
+              </label>
+              <IoMdInformationCircleOutline
+                className="hover:text-blue-600"
+                onClick={handleInfo}
+              />
+            </div>
+            {showInfo && (
+              <>
+                <div className="absolute w-60 max-h-72 rounded-md bg-blue-100 right-5 -top-24 p-2">
+                  <img
+                    src={'/examplePlate.webp'}
+                    className="w-full rounded-md"
+                    alt=""
+                  />
+                </div>
+              </>
+            )}
+
             <input
               type="file"
               name="licensePlate"

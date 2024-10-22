@@ -98,13 +98,22 @@ export default function MutasiTable() {
             placeholder="Search..."
             className="p-2 border rounded-md w-60"
           />
-          <button
-            onClick={openUploadModal}
-            className="px-3 py-2 rounded-lg text-indigo-500 text-sm flex flex-row justify-center items-center space-x-2 border border-slate-200 shadow-inner hover:bg-green-100"
-          >
-            <MdOutlineFileUpload />
-            <p>Upload Mutasi</p>
-          </button>
+          <div className="flex flex-row justify-center items-center">
+            {/* <button
+              onClick={openUploadModal}
+              className="px-3 py-2 rounded-lg text-indigo-500 text-sm flex flex-row justify-center items-center space-x-2 border border-slate-200 shadow-inner hover:bg-green-100"
+            >
+              <MdOutlineFileUpload />
+              <p>Download</p>
+            </button> */}
+            <button
+              onClick={openUploadModal}
+              className="px-3 py-2 rounded-lg text-indigo-500 text-sm flex flex-row justify-center items-center space-x-2 border border-slate-200 shadow-inner hover:bg-green-100"
+            >
+              <MdOutlineFileUpload />
+              <p>Upload Mutasi</p>
+            </button>
+          </div>
         </div>
 
         {/* Table */}
