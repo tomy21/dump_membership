@@ -28,8 +28,6 @@ const RenewalForm = () => {
     }
   }, [formData.email]);
 
-  console.log(statusKartu);
-  console.log(statusKartu);
   const fetchCardDetails = async () => {
     try {
       const response = await getTransaction.findTransactionData(formData.email);
@@ -101,6 +99,7 @@ const RenewalForm = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setPrice(0);
   };
 
   const closeModalSubmit = () => {

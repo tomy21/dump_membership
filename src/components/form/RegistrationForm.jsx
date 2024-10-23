@@ -351,6 +351,7 @@ export default function RegistrationForm() {
 
   const closePopupModal = () => {
     setShowModal(false);
+    setPriceMember(0);
   };
 
   const handleInfo = () => {
