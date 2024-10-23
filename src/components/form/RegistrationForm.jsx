@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getTransaction } from '../../api/apimembers';
+import { getTransaction, Location } from '../../api/apimembers';
 import CryptoJS from 'crypto-js';
 import { GoAlert, GoChecklist } from 'react-icons/go';
 import { useNavigate } from 'react-router-dom';
@@ -19,6 +19,7 @@ export default function RegistrationForm() {
     noRek: '',
     namaRek: '',
     PlateNumber: '',
+    namaProduk: '',
   });
   const [files, setFiles] = useState({
     licensePlate: null,
@@ -29,7 +30,7 @@ export default function RegistrationForm() {
   const [quota, setQuota] = useState(0);
   const [virtualAccount, setVirtualAccount] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  const [price, setPrice] = useState(0);
+  // const [price, setPrice] = useState(0);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [loadingPlate, setLoadingPlate] = useState(false);
@@ -45,7 +46,31 @@ export default function RegistrationForm() {
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [locationName, setLocationName] = useState('');
+  const [listLocation, setListLocation] = useState([]);
+  const [priceMember, setPriceMember] = useState(0);
+  const [selectedProduct, setSelectedProduct] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    loadLocations();
+    fetchLocation();
+  }, [formData.locationCode]);
+
+  const fetchLocation = async () => {
+    try {
+      const response = await Location.getLocationCustomer(
+        1,
+        10,
+        formData.locationCode
+      );
+      console.log(response);
+      setVirtualAccount(response.data.items[0].virtualAccount);
+      setListLocation(response.data.items[0].prices);
+      setLocationName(response.data.items[0].locationName);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const loadLocations = async () => {
     if (!hasMore || loading) return;
@@ -60,10 +85,6 @@ export default function RegistrationForm() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadLocations();
-  }, []);
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
@@ -84,17 +105,17 @@ export default function RegistrationForm() {
       setVirtualAccount(selectedLocation?.virtualAccount);
     }
 
-    if (name === 'vehicletype') {
-      const selectedLocation = locations.find(
-        (location) => location.locationCode === formData.locationCode
-      );
+    // if (name === 'vehicletype') {
+    //   const selectedLocation = locations.find(
+    //     (location) => location.locationCode === formData.locationCode
+    //   );
 
-      if (value === 'MOBIL') {
-        setPrice(selectedLocation?.prices[0]?.priceMobil || 'N/A');
-      } else if (value === 'MOTOR') {
-        setPrice(selectedLocation?.prices[0]?.priceMotor || 'N/A');
-      }
-    }
+    //   if (value === 'MOBIL') {
+    //     setPrice(selectedLocation?.prices[0]?.priceMobil || 'N/A');
+    //   } else if (value === 'MOTOR') {
+    //     setPrice(selectedLocation?.prices[0]?.priceMotor || 'N/A');
+    //   }
+    // }
   };
 
   const currencyFormat = (amount) => {
@@ -224,6 +245,10 @@ export default function RegistrationForm() {
         membershipStatus: 'extend',
       });
     }
+    setFormData({
+      ...formData,
+      namaProduk: selectedProduct,
+    });
     console.log(formData);
     setShowModal(true);
   };
@@ -245,6 +270,7 @@ export default function RegistrationForm() {
   const handleFinalSubmit = async () => {
     try {
       setLoading(true);
+
       console.log(formData);
       const finalPayload = {
         ...formData,
@@ -381,7 +407,7 @@ export default function RegistrationForm() {
               htmlFor="phonenumber"
               className="text-xs bg-blue-100 px-2 py-3 rounded-md mb-2 w-full"
             >
-              Pastikan no handphone terhubung Whastsapp
+              Pastikan no handphone terhubung Whatsapp
             </label>
             <input
               type="text"
@@ -593,17 +619,50 @@ export default function RegistrationForm() {
             <h2 className="text-lg font-semibold mb-4">
               Upload Bukti Pembayaran
             </h2>
-            <div className="flex flex-row justify-start items-center space-x-2 font-semibold mb-4">
+            <div className="border-b border-slate-400 w-full"></div>
+            <div className="flex flex-row justify-start items-center space-x-2 font-semibold my-4">
               <CiLocationOn />
               <span>{locationName}</span>
             </div>
+
+            <select
+              name="locationPrice"
+              id="locationPrice"
+              onChange={(e) => {
+                const selectedOption = JSON.parse(e.target.value);
+                setPriceMember(selectedOption.price);
+                setSelectedProduct(selectedOption.namaProduk);
+                console.log(selectedOption); // Simpan nama produk yang terpilih
+              }}
+              className="w-full border border-slate-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 mt-3 mb-1"
+            >
+              <option value="">Pilih produk</option>
+              {listLocation.map((location) => (
+                <option
+                  key={location.id}
+                  value={JSON.stringify({
+                    // Ubah value menjadi string JSON
+                    price:
+                      formData.vehicletype === 'MOBIL'
+                        ? location.priceMobil
+                        : location.priceMotor,
+                    namaProduk: location.namaProduk,
+                  })}
+                >
+                  {location.namaProduk}
+                </option>
+              ))}
+            </select>
+
             <div className="mb-4">
               <h1>Silahkan lakukan pembayaran ke virtual account berikut: </h1>
               <p className="text-base font-semibold my-3">
                 AN/. UPHC (Membership UPH Collage)
               </p>
               <p className="text-xl font-semibold mb-2">{virtualAccount}</p>
-              <p className="text-xl font-semibold">{currencyFormat(price)}</p>
+              <p className="text-xl font-semibold">
+                {currencyFormat(priceMember)}
+              </p>
             </div>
             <div className="mb-4">
               <input

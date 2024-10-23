@@ -1,24 +1,53 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import cryptoJs from 'crypto-js';
+import { Location } from '../../../api/apimembers';
 
 const RenewalFormSubmit = ({
   transactionData,
-  virtualAccount,
-  price,
   closeModal,
   handleSubmitFinal,
 }) => {
   const [paymentFile, setpPaymentFile] = useState(null);
+  const [listLocation, setListLocation] = useState([]);
+  const [virtualAccount, setVirtualAccount] = useState('');
+  const [priceMember, setPriceMember] = useState(0);
+  const [locationName, setLocationName] = useState('');
+  const [rekNo, setRekNo] = useState('');
+  const [rekName, setRekName] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState('');
+
+  useEffect(() => {
+    {
+      fetchLocation();
+    }
+  }, []);
 
   const handleFileChange = (e) => {
     setpPaymentFile(e.target.files[0]);
+  };
+
+  const fetchLocation = async () => {
+    try {
+      const response = await Location.getLocationCustomer(
+        1,
+        10,
+        transactionData.locationCode
+      );
+      setVirtualAccount(response.data.items[0].virtualAccount);
+      setListLocation(response.data.items[0].prices);
+      setLocationName(response.data.items[0].initialLocation);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const formatCurrency = (amount) => {
     return amount.toLocaleString('id-ID', {
       style: 'currency',
       currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     });
   };
 
@@ -36,23 +65,27 @@ const RenewalFormSubmit = ({
     const dataToEncrypt = {
       fullname: transactionData.fullname,
       phonenumber: transactionData.phonenumber,
-      membershipStatus: 'extend',
       email: transactionData.email,
-      vehicletype: transactionData.vehicletype,
+      namaProduk: selectedProduct,
       NoCard: transactionData.NoCard,
-      PlateNumber: transactionData.PlateNumber,
+      membershipStatus: 'extend',
+      vehicletype: transactionData.vehicletype,
       locationCode: transactionData.locationCode,
+      PlateNumber: transactionData.PlateNumber,
+      noRek: rekNo,
+      namaRek: rekName,
     };
 
     const encryptedPayload = encryptData(dataToEncrypt);
     const formPayload = new FormData();
     formPayload.append('encryptedPayload', encryptedPayload);
 
+    console.log(formPayload);
     if (paymentFile) {
       formPayload.append('paymentFile', paymentFile);
     }
 
-    handleSubmitFinal(formPayload); // Mengirimkan formData yang sudah diisi dan dienkripsi
+    handleSubmitFinal(formPayload);
   };
 
   return (
@@ -65,15 +98,82 @@ const RenewalFormSubmit = ({
         <div className="border-b border-slate-400 my-2"></div>
 
         <form onSubmit={handleSubmit}>
-          <p>
-            <strong>No Kartu:</strong> {transactionData.NoCard}
-          </p>
-          <p>
-            <strong>Nomor Plat:</strong> {transactionData.PlateNumber}
-          </p>
-          <p>
-            <strong>Tipe Kendaraan:</strong> {transactionData.vehicletype}
-          </p>
+          <table className="w-full">
+            <tbody>
+              <tr>
+                <td>
+                  <strong>No Kartu</strong>
+                </td>
+                <td>{transactionData.NoCard}</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Nomor Plat</strong>
+                </td>
+                <td>{transactionData.PlateNumber}</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Tipe Kendaraan</strong>
+                </td>
+                <td>{transactionData.vehicletype}</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Location</strong>
+                </td>
+                <td>{locationName}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <select
+            name="locationPrice"
+            id="locationPrice"
+            onChange={(e) => {
+              const selectedOption = JSON.parse(e.target.value);
+              setPriceMember(selectedOption.price);
+              setSelectedProduct(selectedOption.namaProduk);
+              console.log(selectedOption); // Simpan nama produk yang terpilih
+            }}
+            className="w-full border border-slate-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 mt-3 mb-1"
+          >
+            <option value="">Pilih produk</option>
+            {listLocation.map((location) => (
+              <option
+                key={location.id}
+                value={JSON.stringify({
+                  // Ubah value menjadi string JSON
+                  price:
+                    transactionData.vehicletype === 'MOBIL'
+                      ? location.priceMobil
+                      : location.priceMotor,
+                  namaProduk: location.namaProduk,
+                })}
+              >
+                {location.namaProduk}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="text"
+            name="namaRek"
+            placeholder="Rekening atas nama"
+            value={rekName}
+            onChange={(e) => setRekName(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 mb-1"
+            required
+          />
+          <input
+            type="number"
+            name="noRek"
+            placeholder="Nomor rekening"
+            value={rekNo}
+            onChange={(e) => setRekNo(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 mb-1"
+            required
+          />
 
           <p className="mt-3">Silahkan transfer ke no VA berikut</p>
           <p className="text-base font-semibold">
@@ -83,7 +183,7 @@ const RenewalFormSubmit = ({
           <p>
             Nominal :{' '}
             <span className="text-base font-semibold">
-              {formatCurrency(price)}
+              {formatCurrency(parseInt(priceMember))}
             </span>
           </p>
 
@@ -132,7 +232,7 @@ RenewalFormSubmit.propTypes = {
     email: PropTypes.string.isRequired,
   }).isRequired,
   virtualAccount: PropTypes.string.isRequired,
-  price: PropTypes.string.isRequired,
+  price: PropTypes.number.isRequired,
   closeModal: PropTypes.func.isRequired,
   handleSubmitFinal: PropTypes.func.isRequired,
 };

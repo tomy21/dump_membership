@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getTransaction } from '../../../api/apimembers';
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io';
 import { format } from 'date-fns';
 import PropTypes from 'prop-types';
-import { RoleContext } from '../../../pages/RoleContext';
-import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
-import Cookies from 'js-cookie';
 import { GoAlert } from 'react-icons/go';
+import { apiUsers } from '../../../api/apiUsers';
+import Loading from '../../Loading';
 
 export default function DetailTransaction({ idTransaksi, isClosed }) {
   const [data, setData] = useState(null); // Mengubah dari string kosong menjadi null untuk data
@@ -28,21 +26,8 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
   const [selectedResult, setSelectedResult] = useState(null);
   const [isCustom, setIsCustom] = useState(false);
   const [customValue, setCustomValue] = useState('');
-  const roleId = useContext(RoleContext);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchToken = async () => {
-      const token = Cookies.get('refreshToken');
-      if (!token) {
-        navigate('/');
-      } else {
-        const decodedToken = jwtDecode(token);
-        setUserName(decodedToken.sub);
-      }
-    };
-    fetchToken();
-  }, [navigate]);
+  const [roleId, setRoleId] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,7 +41,28 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
     };
 
     fetchData();
+    fetchUser();
+    fetchRole();
   }, [idTransaksi]);
+
+  const fetchUser = async () => {
+    const response = await apiUsers.userById();
+
+    const userName = response.data.UserName;
+    setUserName(userName);
+  };
+
+  const fetchRole = async () => {
+    setLoading(true);
+    try {
+      const responseRole = await apiUsers.getRoleById();
+      setRoleId(responseRole.data?.RoleId);
+    } catch (error) {
+      console.error('Error fetching role:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSelectChange = (e) => {
     const value = e.target.value;
@@ -180,6 +186,10 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
     setShowSearchModal(false);
   };
 
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
     <>
       <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-50 px-2">
@@ -275,7 +285,7 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                               <h1 className="text-slate-400 text-sm">
                                 {noCard || 'No Card Available'}
                               </h1>
-                              {!noCard && (
+                              {noCard && (
                                 <button
                                   onClick={() => setIsEditingNoCard(true)}
                                   className="text-blue-500 hover:text-blue-700 bg-blue-100 py-1 px-2 rounded-md"

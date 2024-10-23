@@ -28,14 +28,12 @@ export const apiUsers = {
     }
   },
 
-  userById: async (idUser) => {
+  userById: async () => {
     try {
-      const response = await apiClient.get(
-        `/v01/member/api/auth/user/${idUser}`
-      );
+      const response = await apiClient.get(`/v01/member/api/auth/user/byId`);
       return response.data;
     } catch (error) {
-      throw error.response.data;
+      return error.response.data;
     }
   },
 
@@ -66,7 +64,7 @@ export const apiUsers = {
 
   logout: async () => {
     try {
-      const response = await apiClient.post('/v01/member/api/auth/logout');
+      const response = await apiClient.get('/v01/member/api/auth/logout');
       return response.data;
     } catch (error) {
       throw error.response.data;
@@ -96,14 +94,24 @@ export const apiUsers = {
     }
   },
 
-  getRoleById: async (id) => {
+  getRoleById: async () => {
     try {
       const response = await apiClient.get(
-        `/v01/member/api/auth/rolesDetail/${id}`
+        `/v01/member/api/auth/rolesDetail/byId`
       );
+      console.log(response.data);
       return response.data.data;
     } catch (error) {
       throw error.response.data;
+    }
+  },
+
+  verifyToken: async () => {
+    try {
+      const response = await apiClient.get('/v01/member/api/auth/protected');
+      return response.data;
+    } catch (error) {
+      return error.response.data;
     }
   },
 };

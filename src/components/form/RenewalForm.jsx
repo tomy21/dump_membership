@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getTransaction } from '../../api/apimembers';
 import RenewelFormSubmit from '../dashboard/modal/RenewelFormSubmit';
-import RegistrationForm from './RegistrationForm'; // Import form pendaftaran baru
 import { GoAlert, GoChecklist } from 'react-icons/go';
 import Loading from '../Loading';
 
@@ -87,10 +86,11 @@ const RenewalForm = () => {
       setMessage(response.message);
       setShowModalSubmit(true);
       setFormData({ email: '', NoCard: '' });
+      setStatusKartu(null);
       setLoading(false);
       closeModal();
     } catch (error) {
-      setError('error');
+      setError(error.message);
       setShowErrorPopup(true);
     } finally {
       setLoading(false);
@@ -114,7 +114,7 @@ const RenewalForm = () => {
   if (loading) {
     return <Loading />;
   }
-
+  console.log(statusKartu);
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -129,7 +129,13 @@ const RenewalForm = () => {
           required
         />
         {statusKartu === false ? (
-          <RegistrationForm /> // Show registration form if no card found
+          <div className="flex flex-col justify-center items-center space-y-5">
+            <img src={'/no-results.svg'} className="w-28" alt="" />
+            <p className="text-center text-sm text-slate-500 w-72">
+              Maaf email anda belum terdaftar, mohon lakukan pendaftaran
+              terlebih dahulu
+            </p>
+          </div>
         ) : statusKartu === true ? (
           <>
             <label htmlFor="NoCard" className="block text-gray-700">
@@ -150,6 +156,12 @@ const RenewalForm = () => {
                 </option>
               ))}
             </select>
+            <button
+              type="submit"
+              className="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition duration-300"
+            >
+              Submit
+            </button>
           </>
         ) : (
           <p>
@@ -157,13 +169,6 @@ const RenewalForm = () => {
             tersedia.
           </p>
         )}
-
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition duration-300"
-        >
-          Submit
-        </button>
       </form>
 
       {isModalOpen && transactionData && statusKartu && (
@@ -219,11 +224,11 @@ const RenewalForm = () => {
           style={{ margin: 0 }}
         >
           <div className="bg-white p-5 rounded-lg shadow-lg flex flex-col justify-center items-center space-y-4">
-            <GoAlert className="w-20 text-red-500" />
-            <h2 className="text-lg font-semibold mb-4">{error}</h2>
+            <GoAlert size={40} className="text-red-500" />
+            <h2 className="text-lg font-semibold mb-4 text-center">{error}</h2>
             <button
               onClick={closeErrorPopup}
-              className="bg-red-500 text-white p-3 rounded-lg"
+              className="bg-red-500 text-white p-3 rounded-lg px-10"
             >
               OK
             </button>

@@ -1,38 +1,26 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
-import { jwtDecode } from 'jwt-decode'; // Pastikan ini import default
+import { useLocation, useNavigate } from 'react-router-dom'; // Pastikan ini import default
 import { apiUsers } from '../../api/apiUsers';
-import { RoleContext } from '../../pages/RoleContext';
+import Loading from '../Loading';
 
 const Header = () => {
   const [userName, setUserName] = useState('');
-  const [idUser, setIdUser] = useState(null);
   const [name, setName] = useState(null);
   const [email, setEmail] = useState(null);
+  const [roleId, setRoleId] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const pathLocation = useLocation();
-  const roleId = useContext(RoleContext);
-
-  useEffect(() => {
-    const fetchToken = async () => {
-      const token = Cookies.get('refreshToken');
-      if (!token && !roleId) {
-        navigate('/');
-      } else {
-        const decodedToken = jwtDecode(token);
-        setIdUser(decodedToken.Id);
-      }
-    };
-    fetchToken();
-  }, [navigate]);
 
   useEffect(() => {
     const fetchUser = async () => {
-      if (idUser) {
-        const response = await apiUsers.userById(idUser);
+      const response = await apiUsers.userById();
+
+      if (response.status === 'fail') {
+        navigate('/login');
+      } else {
         const userName = response.data.UserName;
         setName(userName);
         setEmail(response.data.Email);
@@ -46,15 +34,31 @@ const Header = () => {
         setUserName(initials);
       }
     };
-
+    fetchRole();
     fetchUser();
-  }, [idUser]);
+  }, [roleId]);
 
-  const handleLogout = () => {
-    Cookies.remove('refreshToken'); // Menghapus token dari cookies
-    navigate('/login'); // Mengarahkan pengguna kembali ke halaman login
+  const fetchRole = async () => {
+    setLoading(true);
+    try {
+      const responseRole = await apiUsers.getRoleById();
+      setRoleId(responseRole.data?.RoleId);
+    } catch (error) {
+      console.error('Error fetching role:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await apiUsers.logout();
+    navigate('/login');
   };
   const isActive = (path) => pathLocation.pathname === path;
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <header className="bg-gray-800 text-white px-4 py-2 flex justify-between items-center">

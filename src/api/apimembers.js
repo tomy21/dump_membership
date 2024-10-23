@@ -246,3 +246,23 @@ export const getTransaction = {
     }
   },
 };
+
+export const Location = {
+  getLocationCustomer: async (page, limit, search) => {
+    try {
+      const response = await apiBackend.get(
+        '/v1/location/allcustomer-locations',
+        {
+          params: {
+            page,
+            limit,
+            search,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return error.response.data;
+    }
+  },
+};
