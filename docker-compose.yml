@@ -13,7 +13,7 @@ services:
       - PORT=4002
     ports:
       # #prod
-      - "8090:4002"
+      - "8096:4002"
       #dev
       # - "9104:4002"
     # command: npm install cookie-parser && npm start
