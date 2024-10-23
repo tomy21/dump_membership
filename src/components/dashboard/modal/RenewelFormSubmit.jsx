@@ -17,15 +17,6 @@ const RenewalFormSubmit = ({
   const [rekName, setRekName] = useState('');
   const [selectedProduct, setSelectedProduct] = useState('');
 
-  useEffect(() => {
-    {
-      fetchLocation();
-    }
-  }, []);
-  const [dataLocation, setDataLocation] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState('');
-  const [noVa, setnoVa] = useState('');
-
   const handleFileChange = (e) => {
     setpPaymentFile(e.target.files[0]);
   };
@@ -45,30 +36,9 @@ const RenewalFormSubmit = ({
     }
   };
 
-  const handleProductChange = (e) => {
-    setSelectedProduct(e.target.value);
-  };
-
   useEffect(() => {
     fetchLocation();
   }, []);
-
-  const fetchLocation = async () => {
-    try {
-      console.log(transactionData.locationCode);
-      const response = await Location.locationAll(
-        1,
-        transactionData.locationCode,
-        5
-      );
-      setDataLocation(response.data.items);
-      setnoVa(response.data.items[0].virtualAccount);
-
-      console.log(response);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const formatCurrency = (amount) => {
     return amount.toLocaleString('id-ID', {
@@ -91,13 +61,13 @@ const RenewalFormSubmit = ({
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const selected = dataLocation[0].prices.find(
-      (price) => price.id === parseInt(selectedProduct)
-    );
+    // const selected = dataLocation[0].prices.find(
+    //   (price) => price.id === parseInt(selectedProduct)
+    // );
 
-    if (!selected) {
-      return;
-    }
+    // if (!selected) {
+    //   return;
+    // }
 
     // Buat objek biasa untuk mengenkripsi data
     const dataToEncrypt = {
@@ -112,7 +82,6 @@ const RenewalFormSubmit = ({
       PlateNumber: transactionData.PlateNumber,
       noRek: rekNo,
       namaRek: rekName,
-      namaProduk: selected.namaProduk,
     };
 
     const encryptedPayload = encryptData(dataToEncrypt);
@@ -134,23 +103,6 @@ const RenewalFormSubmit = ({
   //     ? parseInt(selected.priceMobil)
   //     : parseInt(selected.priceMotor);
   // };
-    handleSubmitFinal(formPayload); // Mengirimkan formData yang sudah diisi dan dienkripsi
-  };
-
-  const getPriceForSelectedProduct = () => {
-    if (!dataLocation || !dataLocation[0] || !dataLocation[0]?.prices) {
-      return '-';
-    }
-
-    const selected = dataLocation[0].prices.find(
-      (price) => price.id === parseInt(selectedProduct)
-    );
-
-    if (!selected) return '-';
-    return transactionData.vehicletype.toLowerCase() === 'mobil'
-      ? parseInt(selected.priceMobil)
-      : parseInt(selected.priceMotor);
-  };
 
   return (
     <div
@@ -238,48 +190,9 @@ const RenewalFormSubmit = ({
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 mb-1"
             required
           />
-          <table className="table-auto w-full">
-            <tbody>
-              <tr>
-                <td className="font-bold w-52">No Kartu</td>
-                <td>:</td>
-                <td>{transactionData.NoCard}</td>
-              </tr>
-              <tr>
-                <td className="font-bold">Nomor Plat</td>
-                <td>:</td>
-                <td>{transactionData.PlateNumber}</td>
-              </tr>
-              <tr>
-                <td className="font-bold">Tipe Kendaraan</td>
-                <td>:</td>
-                <td>{transactionData.vehicletype}</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div className="border-b border-dashed border-slate-400 w-full mt-3"></div>
-
-          <select
-            name="product"
-            id="product"
-            value={selectedProduct}
-            onChange={handleProductChange}
-            className="border border-slate-400 px-2 py-1 rounded-md mt-3 w-1/2"
-          >
-            <option value="">Pilih Product</option>
-            {dataLocation[0]?.prices?.map((data, index) => (
-              <option key={index} value={data.id}>
-                {data.namaProduk}
-              </option>
-            ))}
-          </select>
 
           <p className="mt-3">Silahkan transfer ke no VA berikut</p>
           <p className="text-base font-semibold">{virtualAccount ?? '-'}</p>
-          <p className="text-base font-semibold mb-5">
-            an. UPHC (Membership UPH College)
-          <p className="text-base font-semibold">{noVa ?? '-'}</p>
           <p className="text-base font-semibold mb-5">
             an. UPHC (Membership UPH College)
           </p>
@@ -287,7 +200,6 @@ const RenewalFormSubmit = ({
             Nominal :{' '}
             <span className="text-base font-semibold">
               {formatCurrency(parseInt(priceMember))}
-              {formatCurrency(getPriceForSelectedProduct())}
             </span>
           </p>
 
