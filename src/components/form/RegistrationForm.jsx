@@ -234,21 +234,25 @@ export default function RegistrationForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.NoCard) {
-      setFormData({
-        ...formData,
-        membershipStatus: 'new',
-      });
-    } else {
-      setFormData({
-        ...formData,
-        membershipStatus: 'extend',
-      });
-    }
+
     setFormData({
       ...formData,
-      namaProduk: selectedProduct,
+      membershipStatus: formData.NoCard ? 'extend' : 'new',
+      namaProduk: selectedProduct, // Update namaProduk di formData sebelum submit
     });
+
+    // if (!formData.NoCard) {
+    //   setFormData({
+    //     ...formData,
+    //     membershipStatus: 'new',
+    //   });
+    // } else {
+    //   setFormData({
+    //     ...formData,
+    //     membershipStatus: 'extend',
+    //   });
+    // }
+
     console.log(formData);
     setShowModal(true);
   };
@@ -632,7 +636,10 @@ export default function RegistrationForm() {
                 const selectedOption = JSON.parse(e.target.value);
                 setPriceMember(selectedOption.price);
                 setSelectedProduct(selectedOption.namaProduk);
-                console.log(selectedOption); // Simpan nama produk yang terpilih
+                setFormData((prevFormData) => ({
+                  ...prevFormData,
+                  namaProduk: selectedOption.namaProduk,
+                }));
               }}
               className="w-full border border-slate-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 mt-3 mb-1"
             >

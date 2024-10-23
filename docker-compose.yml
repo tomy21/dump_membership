@@ -6,13 +6,16 @@ services:
     build: 
       context: .
       dockerfile: ./Dockerfile
+    # volumes:
+    #   - .:/app
+    #   - node_modules:/app/node_modules  
     environment:
       - PORT=4002
     ports:
-      #prod
-      - "8096:4002"
+      # #prod
+      # - "8090:4002"
       #dev
-      # - "9104:4002"
+      - "9104:4002"
     # command: npm install cookie-parser && npm start
     networks:
       - backend_network

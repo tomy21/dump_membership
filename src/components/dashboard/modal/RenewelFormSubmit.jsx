@@ -58,6 +58,8 @@ const RenewalFormSubmit = ({
     ).toString();
   };
 
+  console.log(transactionData);
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -87,6 +89,14 @@ const RenewalFormSubmit = ({
 
     handleSubmitFinal(formPayload);
   };
+
+  // const getPriceForSelectedProduct = () => {
+
+  //   if (!selected) return '-';
+  //   return transactionData.vehicletype.toLowerCase() === 'mobil'
+  //     ? parseInt(selected.priceMobil)
+  //     : parseInt(selected.priceMotor);
+  // };
 
   return (
     <div
@@ -176,10 +186,10 @@ const RenewalFormSubmit = ({
           />
 
           <p className="mt-3">Silahkan transfer ke no VA berikut</p>
-          <p className="text-base font-semibold">
-            an.UPHC (Membership UPH Collage)
+          <p className="text-base font-semibold">{virtualAccount ?? '-'}</p>
+          <p className="text-base font-semibold mb-5">
+            an. UPHC (Membership UPH College)
           </p>
-          <p className="text-base font-semibold">{virtualAccount}</p>
           <p>
             Nominal :{' '}
             <span className="text-base font-semibold">
@@ -198,6 +208,10 @@ const RenewalFormSubmit = ({
             accept=".jpg, .png, .jpeg"
             required
           />
+          <p className="italic text-slate-400 text-xs mt-3">
+            <strong>Catatan</strong>: Pastikan bukti transfer terlihat jelas dan
+            terlihat untuk detailnya{' '}
+          </p>
 
           <div className="mt-4 flex justify-end space-x-4">
             <button
