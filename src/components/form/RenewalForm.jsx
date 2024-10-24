@@ -28,7 +28,6 @@ const RenewalForm = () => {
     }
   }, [formData.email]);
 
-  console.log(statusKartu);
   const fetchCardDetails = async () => {
     try {
       const response = await getTransaction.findTransactionData(formData.email);
@@ -87,10 +86,11 @@ const RenewalForm = () => {
       setMessage(response.message);
       setShowModalSubmit(true);
       setFormData({ email: '', NoCard: '' });
+      setStatusKartu(null);
       setLoading(false);
       closeModal();
     } catch (error) {
-      setError('error');
+      setError(error.message);
       setShowErrorPopup(true);
     } finally {
       setLoading(false);
@@ -99,6 +99,7 @@ const RenewalForm = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setPrice(0);
   };
 
   const closeModalSubmit = () => {
@@ -114,7 +115,7 @@ const RenewalForm = () => {
   if (loading) {
     return <Loading />;
   }
-
+  console.log(statusKartu);
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -129,10 +130,11 @@ const RenewalForm = () => {
           required
         />
         {statusKartu === false ? (
-          <div className="flex flex-col justify-center items-center w-full gap-y-5">
-            <img src={`/no-results.svg`} className="w-32 mt-5" alt="" />
-            <p className="text-slate-400 text-center text-lg w-[80%]">
-              Email anda belum terdaftar silahkan lakukan pendaftaran
+          <div className="flex flex-col justify-center items-center space-y-5">
+            <img src={'/no-results.svg'} className="w-28" alt="" />
+            <p className="text-center text-sm text-slate-500 w-72">
+              Maaf email anda belum terdaftar, mohon lakukan pendaftaran
+              terlebih dahulu
             </p>
           </div>
         ) : statusKartu === true ? (
@@ -157,7 +159,7 @@ const RenewalForm = () => {
             </select>
             <button
               type="submit"
-              className="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition duration-300 mt-10"
+              className="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition duration-300"
             >
               Submit
             </button>
@@ -223,11 +225,11 @@ const RenewalForm = () => {
           style={{ margin: 0 }}
         >
           <div className="bg-white p-5 rounded-lg shadow-lg flex flex-col justify-center items-center space-y-4">
-            <GoAlert className="w-20 text-red-500" />
-            <h2 className="text-lg font-semibold mb-4">{error}</h2>
+            <GoAlert size={40} className="text-red-500" />
+            <h2 className="text-lg font-semibold mb-4 text-center">{error}</h2>
             <button
               onClick={closeErrorPopup}
-              className="bg-red-500 text-white p-3 rounded-lg"
+              className="bg-red-500 text-white p-3 rounded-lg px-10"
             >
               OK
             </button>

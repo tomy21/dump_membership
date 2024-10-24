@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Cookies from 'js-cookie';
 import Loading from './Loading';
 import { MdOutlineRefresh } from 'react-icons/md';
 import { apiUsers } from '../api/apiUsers';
@@ -52,7 +51,7 @@ const Login = () => {
     if (validateForm()) {
       setLoading(true);
       try {
-        const response = await apiUsers.login(formData);
+        await apiUsers.login(formData);
         setFormErrors({});
         setFormData({
           identifier: '',
@@ -60,12 +59,7 @@ const Login = () => {
           rememberMe: false,
         });
 
-        const token = response.token;
-        Cookies.set('refreshToken', token);
-        setTimeout(() => {
-          navigate('/admin');
-          toast.success('Login successful!');
-        }, 500);
+        navigate('/admin');
 
         setLoading(false);
       } catch (error) {
@@ -138,7 +132,7 @@ const Login = () => {
             </div>
 
             {/* CAPTCHA Text */}
-            <div className="relative text-white font-semibold w-full h-[40px] px-1 rounded-md text-3xl tracking-[15px] flex items-center justify-center">
+            <div className="relative text-white font-semibold w-full h-[60px] px-1 rounded-md text-3xl tracking-[15px] flex items-center justify-center">
               <span
                 className="transform rotate-[5deg] text-yellow-400"
                 style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}

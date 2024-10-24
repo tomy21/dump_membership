@@ -11,16 +11,14 @@ import CustomerPage from './pages/CustomerPage';
 import Login from './components/Login';
 import MutasiPage from './pages/MutasiPage';
 import UserManagement from './pages/UserManagement';
-import { RoleProvider } from './pages/RoleContext';
 import Header from './components/dashboard/Header';
+import ProtectAuth from './components/dashboard/ProtectAuth';
 
 function App() {
   return (
-    <RoleProvider>
-      <Router>
-        <MainContent />
-      </Router>
-    </RoleProvider>
+    <Router>
+      <MainContent />
+    </Router>
   );
 }
 
@@ -35,10 +33,38 @@ function MainContent() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/customer" element={<CustomerPage />} />
-        <Route path="/mutasi" element={<MutasiPage />} />
-        <Route path="/users" element={<UserManagement />} />
+        <Route
+          path="/admin"
+          element={
+            <ProtectAuth>
+              <AdminPage />
+            </ProtectAuth>
+          }
+        />
+        <Route
+          path="/customer"
+          element={
+            <ProtectAuth>
+              <CustomerPage />
+            </ProtectAuth>
+          }
+        />
+        <Route
+          path="/mutasi"
+          element={
+            <ProtectAuth>
+              <MutasiPage />
+            </ProtectAuth>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <ProtectAuth>
+              <UserManagement />
+            </ProtectAuth>
+          }
+        />
       </Routes>
     </>
   );

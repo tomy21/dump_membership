@@ -9,43 +9,43 @@ const RenewalFormSubmit = ({
   handleSubmitFinal,
 }) => {
   const [paymentFile, setpPaymentFile] = useState(null);
-  const [dataLocation, setDataLocation] = useState([]);
+  const [listLocation, setListLocation] = useState([]);
+  const [virtualAccount, setVirtualAccount] = useState('');
+  const [priceMember, setPriceMember] = useState(0);
+  const [locationName, setLocationName] = useState('');
+  const [rekNo, setRekNo] = useState('');
+  const [rekName, setRekName] = useState('');
   const [selectedProduct, setSelectedProduct] = useState('');
-  const [noVa, setnoVa] = useState('');
 
   const handleFileChange = (e) => {
     setpPaymentFile(e.target.files[0]);
   };
 
-  const handleProductChange = (e) => {
-    setSelectedProduct(e.target.value);
+  const fetchLocation = async () => {
+    try {
+      const response = await Location.getLocationCustomer(
+        1,
+        10,
+        transactionData.locationCode
+      );
+      setVirtualAccount(response.data.items[0].virtualAccount);
+      setListLocation(response.data.items[0].prices);
+      setLocationName(response.data.items[0].initialLocation);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
     fetchLocation();
   }, []);
 
-  const fetchLocation = async () => {
-    try {
-      console.log(transactionData.locationCode);
-      const response = await Location.locationAll(
-        1,
-        transactionData.locationCode,
-        5
-      );
-      setDataLocation(response.data.items);
-      setnoVa(response.data.items[0].virtualAccount);
-
-      console.log(response);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const formatCurrency = (amount) => {
     return amount.toLocaleString('id-ID', {
       style: 'currency',
       currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     });
   };
 
@@ -61,52 +61,48 @@ const RenewalFormSubmit = ({
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const selected = dataLocation[0].prices.find(
-      (price) => price.id === parseInt(selectedProduct)
-    );
+    // const selected = dataLocation[0].prices.find(
+    //   (price) => price.id === parseInt(selectedProduct)
+    // );
 
-    if (!selected) {
-      return;
-    }
+    // if (!selected) {
+    //   return;
+    // }
 
     // Buat objek biasa untuk mengenkripsi data
     const dataToEncrypt = {
       fullname: transactionData.fullname,
       phonenumber: transactionData.phonenumber,
-      membershipStatus: 'extend',
       email: transactionData.email,
-      vehicletype: transactionData.vehicletype,
+      namaProduk: selectedProduct,
       NoCard: transactionData.NoCard,
-      PlateNumber: transactionData.PlateNumber,
+      membershipStatus: 'extend',
+      vehicletype: transactionData.vehicletype,
       locationCode: transactionData.locationCode,
-      namaProduk: selected.namaProduk,
+      PlateNumber: transactionData.PlateNumber,
+      noRek: rekNo,
+      namaRek: rekName,
     };
 
     const encryptedPayload = encryptData(dataToEncrypt);
     const formPayload = new FormData();
     formPayload.append('encryptedPayload', encryptedPayload);
 
+    console.log(formPayload);
     if (paymentFile) {
       formPayload.append('paymentFile', paymentFile);
     }
 
-    handleSubmitFinal(formPayload); // Mengirimkan formData yang sudah diisi dan dienkripsi
+    handleSubmitFinal(formPayload);
   };
 
-  const getPriceForSelectedProduct = () => {
-    if (!dataLocation || !dataLocation[0] || !dataLocation[0]?.prices) {
-      return '-';
-    }
+  // const getPriceForSelectedProduct = () => {
 
-    const selected = dataLocation[0].prices.find(
-      (price) => price.id === parseInt(selectedProduct)
-    );
-
-    if (!selected) return '-';
-    return transactionData.vehicletype.toLowerCase() === 'mobil'
-      ? parseInt(selected.priceMobil)
-      : parseInt(selected.priceMotor);
-  };
+  //   if (!selected) return '-';
+  //   return transactionData.vehicletype.toLowerCase() === 'mobil'
+  //     ? parseInt(selected.priceMobil)
+  //     : parseInt(selected.priceMotor);
+  // };
 
   return (
     <div
@@ -118,52 +114,92 @@ const RenewalFormSubmit = ({
         <div className="border-b border-slate-400 my-2"></div>
 
         <form onSubmit={handleSubmit}>
-          <table className="table-auto w-full">
+          <table className="w-full">
             <tbody>
               <tr>
-                <td className="font-bold w-52">No Kartu</td>
-                <td>:</td>
+                <td>
+                  <strong>No Kartu</strong>
+                </td>
                 <td>{transactionData.NoCard}</td>
               </tr>
               <tr>
-                <td className="font-bold">Nomor Plat</td>
-                <td>:</td>
+                <td>
+                  <strong>Nomor Plat</strong>
+                </td>
                 <td>{transactionData.PlateNumber}</td>
               </tr>
               <tr>
-                <td className="font-bold">Tipe Kendaraan</td>
-                <td>:</td>
+                <td>
+                  <strong>Tipe Kendaraan</strong>
+                </td>
                 <td>{transactionData.vehicletype}</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Location</strong>
+                </td>
+                <td>{locationName}</td>
               </tr>
             </tbody>
           </table>
 
-          <div className="border-b border-dashed border-slate-400 w-full mt-3"></div>
-
           <select
-            name="product"
-            id="product"
-            value={selectedProduct}
-            onChange={handleProductChange}
-            className="border border-slate-400 px-2 py-1 rounded-md mt-3 w-1/2"
+            name="locationPrice"
+            id="locationPrice"
+            onChange={(e) => {
+              const selectedOption = JSON.parse(e.target.value);
+              setPriceMember(selectedOption.price);
+              setSelectedProduct(selectedOption.namaProduk);
+              console.log(selectedOption); // Simpan nama produk yang terpilih
+            }}
+            className="w-full border border-slate-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 mt-3 mb-1"
           >
-            <option value="">Pilih Product</option>
-            {dataLocation[0]?.prices?.map((data, index) => (
-              <option key={index} value={data.id}>
-                {data.namaProduk}
+            <option value="">Pilih produk</option>
+            {listLocation.map((location) => (
+              <option
+                key={location.id}
+                value={JSON.stringify({
+                  // Ubah value menjadi string JSON
+                  price:
+                    transactionData.vehicletype === 'MOBIL'
+                      ? location.priceMobil
+                      : location.priceMotor,
+                  namaProduk: location.namaProduk,
+                })}
+              >
+                {location.namaProduk}
               </option>
             ))}
           </select>
 
+          <input
+            type="text"
+            name="namaRek"
+            placeholder="Rekening atas nama"
+            value={rekName}
+            onChange={(e) => setRekName(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 mb-1"
+            required
+          />
+          <input
+            type="number"
+            name="noRek"
+            placeholder="Nomor rekening"
+            value={rekNo}
+            onChange={(e) => setRekNo(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 mb-1"
+            required
+          />
+
           <p className="mt-3">Silahkan transfer ke no VA berikut</p>
-          <p className="text-base font-semibold">{noVa ?? '-'}</p>
+          <p className="text-base font-semibold">{virtualAccount ?? '-'}</p>
           <p className="text-base font-semibold mb-5">
             an. UPHC (Membership UPH College)
           </p>
           <p>
             Nominal :{' '}
             <span className="text-base font-semibold">
-              {formatCurrency(getPriceForSelectedProduct())}
+              {formatCurrency(parseInt(priceMember))}
             </span>
           </p>
 

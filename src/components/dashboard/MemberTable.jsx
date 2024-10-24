@@ -1,16 +1,14 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import DetailTransaction from './modal/DetailTransaction';
 import { MdMoreVert, MdOutlineFileDownload } from 'react-icons/md';
 import { FaArrowLeftLong, FaArrowRightLong, FaSpinner } from 'react-icons/fa6';
 
 import { GoAlert } from 'react-icons/go';
-import { jwtDecode } from 'jwt-decode';
-import Cookies from 'js-cookie';
-import { useNavigate } from 'react-router-dom';
 import { getTransaction } from '../../api/apimembers';
 import Tabs from '../Tabs';
-import { RoleContext } from '../../pages/RoleContext';
 import { format } from 'date-fns';
+import { apiUsers } from '../../api/apiUsers';
+import Loading from '../Loading';
 
 const MemberTable = () => {
   const [data, setData] = useState([]);
@@ -28,25 +26,33 @@ const MemberTable = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [userName, setUserName] = useState('-');
   const [show404Popup, setShow404Popup] = useState(false);
-  const roleId = useContext(RoleContext);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [roleId, setRoleId] = useState(null);
 
   useEffect(() => {
     fetchData();
+    fetchUser();
+    fetchRole();
   }, [searchTerm, currentPage, rowsPerPage, activeTab]);
 
-  useEffect(() => {
-    const fetchToken = async () => {
-      const token = Cookies.get('refreshToken');
-      if (!token) {
-        navigate('/');
-      } else {
-        const decodedToken = jwtDecode(token);
-        setUserName(decodedToken.sub);
-      }
-    };
-    fetchToken();
-  }, [navigate]);
+  const fetchUser = async () => {
+    const response = await apiUsers.userById();
+
+    const userName = response.data.UserName;
+    setUserName(userName);
+  };
+
+  const fetchRole = async () => {
+    setLoading(true);
+    try {
+      const responseRole = await apiUsers.getRoleById();
+      setRoleId(responseRole.data?.RoleId);
+    } catch (error) {
+      console.error('Error fetching role:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -206,6 +212,10 @@ const MemberTable = () => {
         return 'text-gray-500';
     }
   };
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="bg-white shadow-md rounded-lg p-4">

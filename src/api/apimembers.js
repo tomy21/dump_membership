@@ -1,4 +1,4 @@
-import { apiBackend, apiClient } from './apiClient';
+import { apiBackend } from './apiClient';
 
 export const getTransaction = {
   getData: async (search, page, limit) => {
@@ -248,22 +248,21 @@ export const getTransaction = {
 };
 
 export const Location = {
-  locationAll: async (page, limit, search) => {
+  getLocationCustomer: async (page, limit, search) => {
     try {
-      const response = await apiClient.get(
-        `https://devapi-injectmember.skyparking.online/v1/location/allcustomer-locations`,
+      const response = await apiBackend.get(
+        '/v1/location/allcustomer-locations',
         {
           params: {
             page,
-            search,
             limit,
+            search,
           },
         }
       );
-      console.log(response);
       return response.data;
     } catch (error) {
-      throw error.response.data;
+      return error.response.data;
     }
   },
 };
