@@ -99,7 +99,6 @@ export const apiUsers = {
       const response = await apiClient.get(
         `/v01/member/api/auth/rolesDetail/byId`
       );
-      console.log(response.data);
       return response.data.data;
     } catch (error) {
       throw error.response.data;
