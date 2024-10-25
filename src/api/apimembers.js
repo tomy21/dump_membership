@@ -1,13 +1,14 @@
 import { apiBackend } from './apiClient';
 
 export const getTransaction = {
-  getData: async (search, page, limit) => {
+  getData: async (search, page, limit, sort) => {
     try {
       const response = await apiBackend.get(`/v1/transaction/getTransactions`, {
         params: {
           search,
           page,
           limit,
+          sort,
         },
       });
       return response.data;
@@ -16,7 +17,7 @@ export const getTransaction = {
     }
   },
 
-  getByStatus: async (status, search, page, limit) => {
+  getByStatus: async (status, search, page, limit, sort) => {
     try {
       const response = await apiBackend.get(
         `/v1/transaction/transactionStatus`,
@@ -26,6 +27,7 @@ export const getTransaction = {
             search,
             page,
             limit,
+            sort,
           },
         }
       );

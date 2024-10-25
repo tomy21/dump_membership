@@ -45,6 +45,8 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
     fetchRole();
   }, [idTransaksi]);
 
+  console.log(data);
+
   const fetchUser = async () => {
     const response = await apiUsers.userById();
 
@@ -463,13 +465,12 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
               <select
                 id="nominal"
                 className="w-full p-2 border rounded-lg"
-                value={nominalValue || 'custom'}
+                value={nominalValue || ''}
                 onChange={handleSelectChange}
-                required
               >
                 <option value="">-- Select an option --</option>
-                <option value="300000">300000</option>
-                <option value="80000">80000</option>
+                <option value="300000">Rp. 300.000</option>
+                <option value="80000">Rp. 80.000</option>
                 <option value="custom">Other (Enter manually)</option>
               </select>
 

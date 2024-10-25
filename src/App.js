@@ -13,6 +13,7 @@ import MutasiPage from './pages/MutasiPage';
 import UserManagement from './pages/UserManagement';
 import Header from './components/dashboard/Header';
 import ProtectAuth from './components/dashboard/ProtectAuth';
+import PageNotfound from './pages/pageNotfound';
 
 function App() {
   return (
@@ -25,13 +26,16 @@ function App() {
 function MainContent() {
   const location = useLocation();
   const showHeader =
-    location.pathname !== '/' && location.pathname !== '/login';
+    location.pathname !== '/' &&
+    location.pathname !== '/login' &&
+    location.pathname !== '/expired';
 
   return (
     <>
       {showHeader && <Header />}
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/expired" element={<PageNotfound />} />
         <Route path="/login" element={<Login />} />
         <Route
           path="/admin"

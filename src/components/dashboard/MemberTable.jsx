@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DetailTransaction from './modal/DetailTransaction';
 import { MdMoreVert, MdOutlineFileDownload } from 'react-icons/md';
 import { FaArrowLeftLong, FaArrowRightLong, FaSpinner } from 'react-icons/fa6';
+import { BsSortAlphaDown, BsSortAlphaUp } from 'react-icons/bs';
 
 import { GoAlert } from 'react-icons/go';
 import { getTransaction } from '../../api/apimembers';
@@ -28,12 +29,14 @@ const MemberTable = () => {
   const [show404Popup, setShow404Popup] = useState(false);
   const [loading, setLoading] = useState(false);
   const [roleId, setRoleId] = useState(null);
+  const [sort, setSort] = useState('asc');
+  const [debounceTimeout, setDebounceTimeout] = useState(null);
 
   useEffect(() => {
     fetchData();
     fetchUser();
     fetchRole();
-  }, [searchTerm, currentPage, rowsPerPage, activeTab]);
+  }, [currentPage, rowsPerPage, activeTab, sort]);
 
   const fetchUser = async () => {
     const response = await apiUsers.userById();
@@ -59,35 +62,50 @@ const MemberTable = () => {
       setIsLoading(true);
       const status = activeTab === 'all' ? '' : activeTab;
 
+      let response;
       if (activeTab === 'all') {
-        const response = await getTransaction.getData(
+        response = await getTransaction.getData(
           searchTerm,
           currentPage,
           rowsPerPage
         );
-        setData(response.data.transactions);
-        setTotalPages(response.data.totalPages);
-        setTotalRows(response.data.totalCount);
-        setCurrentPage(response.data.currentPage);
-        setRowsPerPage(response.data.rowsPerPage || rowsPerPage);
       } else {
-        const response = await getTransaction.getByStatus(
+        response = await getTransaction.getByStatus(
           status,
           searchTerm,
           currentPage,
           rowsPerPage
         );
-        setData(response.data.transactions);
-        setTotalPages(response.data.totalPages);
-        setTotalRows(response.data.totalCount);
-        setCurrentPage(response.data.currentPage);
-        setRowsPerPage(response.data.rowsPerPage || rowsPerPage);
       }
+
+      let transactions = response.data.transactions;
+      if (sort === 'asc') {
+        transactions.sort(
+          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+        );
+      } else {
+        transactions.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+      }
+      setData(transactions);
+      setTotalPages(response.data.totalPages);
+      setTotalRows(response.data.totalCount);
+      setCurrentPage(response.data.currentPage);
+      setRowsPerPage(response.data.rowsPerPage || rowsPerPage);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSort = () => {
+    setSort((prevSort) => {
+      const newSort = prevSort === 'asc' ? 'desc' : 'asc';
+      fetchData(newSort); // pass the new sort state
+      return newSort;
+    });
   };
 
   const handleCheckboxChange = (id) => {
@@ -107,7 +125,23 @@ const MemberTable = () => {
   };
 
   const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
+    const value = e.target.value;
+    setSearchTerm(value);
+
+    if (value === '') {
+      fetchData();
+    }
+
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout); // Hapus timeout sebelumnya
+    }
+
+    // Atur timeout baru
+    setDebounceTimeout(
+      setTimeout(() => {
+        fetchData(); // Panggil fetchData setelah delay
+      }, 300)
+    ); // Ganti 300 dengan waktu delay dalam milidetik
   };
 
   const handleExport = async () => {
@@ -168,8 +202,7 @@ const MemberTable = () => {
     }
 
     setTimeout(async () => {
-      const response = await getTransaction.sendMessage(id, userName);
-      console.log(response);
+      await getTransaction.sendMessage(id, userName);
 
       setIsLoading(false);
       setDropdownIndex(null);
@@ -181,9 +214,7 @@ const MemberTable = () => {
     setIsLoading(true);
 
     setTimeout(async () => {
-      const response = await getTransaction.updateDone(id, userName);
-      console.log(response);
-
+      await getTransaction.updateDone(id, userName);
       setIsLoading(false);
       setDropdownIndex(null);
       fetchData();
@@ -223,6 +254,7 @@ const MemberTable = () => {
       {/* Search and Export */}
       <div className="flex justify-between items-center mb-4">
         <input
+          type="text"
           value={searchTerm}
           onChange={handleSearch}
           placeholder="Search..."
@@ -251,7 +283,24 @@ const MemberTable = () => {
               />
             </th>
             <th className="py-3 px-4 bg-gray-100 border-b text-left text-sm font-semibold text-gray-700">
-              Tanggal Input
+              <div className="flex flex-row justify-start items-center gap-x-2">
+                <p>Tanggal Input </p>
+                <button>
+                  {sort === 'asc' ? (
+                    <BsSortAlphaDown
+                      onClick={handleSort}
+                      className="cursor-pointer"
+                      size={20}
+                    />
+                  ) : (
+                    <BsSortAlphaUp
+                      onClick={handleSort}
+                      className="cursor-pointer"
+                      size={20}
+                    />
+                  )}
+                </button>
+              </div>
             </th>
             <th className="py-3 px-4 bg-gray-100 border-b text-left text-sm font-semibold text-gray-700">
               No Antrian
@@ -290,7 +339,7 @@ const MemberTable = () => {
                   />
                 </td>
                 <td className="py-2 px-4 border-b text-sm text-gray-700">
-                  {format(member.createdAt, 'dd MMM yyyy')}
+                  {format(member.createdAt, 'dd MMM yyyy HH:mm')}
                 </td>
                 <td className="py-2 px-4 border-b text-sm text-gray-700">
                   {member.NoRef}
