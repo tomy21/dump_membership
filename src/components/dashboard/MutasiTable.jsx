@@ -3,12 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { MdOutlineFileUpload } from 'react-icons/md';
 import { getTransaction } from '../../api/apimembers';
 import { format } from 'date-fns';
-import { FaArrowLeftLong, FaArrowRightLong } from 'react-icons/fa6';
 import Loading from '../Loading';
+import Pagination from '../Pagination';
 
 export default function MutasiTable() {
   const [dataMutasi, setDataMutasi] = useState([]);
-  const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
@@ -20,14 +19,17 @@ export default function MutasiTable() {
 
   useEffect(() => {
     fetchData();
-  }, [searchData, pages, limit]);
+  }, [searchData, currentPage, limit, totalPage]);
 
   const fetchData = async () => {
-    const response = await getTransaction.getMutasi(pages, limit, searchData);
-    console.log('response', response);
+    const response = await getTransaction.getMutasi(
+      currentPage,
+      limit,
+      searchData
+    );
     setDataMutasi(response.data);
     setTotalPage(response.totalPages);
-    setCurrentPage(response.data.currentPage);
+    setLimit(response.totalFiltered);
   };
 
   const currencyFormat = (amount) => {
@@ -37,11 +39,11 @@ export default function MutasiTable() {
       minimumFractionDigits: 0,
     });
   };
-  const handlePageClick = (page) => {
-    if (page >= 1 && page <= totalPage) {
-      setPages(page);
-    }
-  };
+  // const handlePageClick = (page) => {
+  //   if (page >= 1 && page <= totalPage) {
+  //     setPages(page);
+  //   }
+  // };
 
   const openUploadModal = () => {
     setShowUploadModal(true);
@@ -164,81 +166,11 @@ export default function MutasiTable() {
         </table>
 
         {/* Pagination */}
-        <div className="flex justify-between items-center mt-4">
-          <div>
-            <span className="text-sm text-gray-700">
-              Page{' '}
-              <strong>
-                {currentPage} of {totalPage}
-              </strong>{' '}
-            </span>
-          </div>
-
-          <div className="flex flex-row justify-center items-center space-x-2">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-700">Per page:</span>
-              <select
-                value={limit}
-                onChange={(e) => setLimit(Number(e.target.value))}
-                className="border p-2 rounded-md"
-              >
-                {[10, 20, 30, 40, 50].map((size) => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => handlePageClick(Math.max(currentPage - 1, 1))}
-                disabled={currentPage === 1}
-                className="px-3 py-1 border rounded-md bg-gray-200"
-              >
-                <FaArrowLeftLong />
-              </button>
-              <div className="flex flex-row justify-end items-center gap-x-3">
-                {Array.from({ length: totalPage }).map((_, i) => {
-                  if (
-                    totalPage > 10 &&
-                    (i + 1 === 2 || i + 1 === totalPage - 1)
-                  ) {
-                    return (
-                      <span key={i} className="px-3 py-1 text-gray-500">
-                        ...
-                      </span>
-                    );
-                  }
-                  if (totalPage > 10 && i + 1 > 2 && i + 1 < totalPage - 1) {
-                    return null;
-                  }
-                  return (
-                    <button
-                      key={i}
-                      onClick={() => handlePageClick(i + 1)}
-                      className={`px-3 py-1 border rounded-md ${
-                        i + 1 === currentPage
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-200'
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
-                  );
-                })}
-                <button
-                  onClick={() =>
-                    handlePageClick(Math.min(currentPage + 1, totalPage))
-                  }
-                  disabled={currentPage === totalPage}
-                  className="px-3 py-1 border rounded-md bg-gray-200"
-                >
-                  <FaArrowRightLong />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPage}
+          onPageChange={setCurrentPage}
+        />
 
         {/* Total Rows
       <div className="mt-4">

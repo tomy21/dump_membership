@@ -6,12 +6,30 @@ import PropTypes from 'prop-types';
 import { GoAlert } from 'react-icons/go';
 import { apiUsers } from '../../../api/apiUsers';
 import Loading from '../../Loading';
+import { TiEdit } from 'react-icons/ti';
+import { FaRegSave } from 'react-icons/fa';
 
 export default function DetailTransaction({ idTransaksi, isClosed }) {
-  const [data, setData] = useState(null); // Mengubah dari string kosong menjadi null untuk data
-  const [noCard, setNoCard] = useState(''); // Inisialisasi noCard sebagai string kosong
+  const [data, setData] = useState(null);
+  const [form, setForm] = useState({
+    NoCard: '',
+    fullname: '-',
+    namaRek: '-',
+    noRek: '-',
+    paymentFile: '-',
+    licensePlate: '-',
+  });
+  console.log(data);
+  console.log(form);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isEditingNoCard, setIsEditingNoCard] = useState(false);
+  const [isEditUserName, setIsEditUserName] = useState(false);
+  const [isEditRekName, setIsEditRekName] = useState(false);
+  const [isEditNoRek, setIsEditNoRek] = useState(false);
+  const [isEditBuktiBayar, setIsEditBuktiBayar] = useState(false);
+  const [paymentFile, setPaymentFile] = useState(false);
+  const [isEditPlatNo, setIsEditPlatNo] = useState(false);
+  const [platFile, setPlatFile] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -25,27 +43,42 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
   const [nominalValue, setNominalValue] = useState('');
   const [selectedResult, setSelectedResult] = useState(null);
   const [isCustom, setIsCustom] = useState(false);
-  const [customValue, setCustomValue] = useState('');
   const [roleId, setRoleId] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await getTransaction.getById(idTransaksi);
-        setData(response.data);
-        setNoCard(response.data.NoCard || '');
-      } catch (error) {
-        console.error('Error fetching transaction data:', error);
-      }
-    };
-
     fetchData();
     fetchUser();
     fetchRole();
   }, [idTransaksi]);
 
-  console.log(data);
+  const handlePaymentFileChange = (e) => {
+    setPaymentFile(e.target.files[0]);
+  };
+
+  console.log(paymentFile);
+
+  const handleStnkFileChange = (e) => {
+    setPlatFile(e.target.files[0]);
+  };
+
+  const fetchData = async () => {
+    try {
+      const response = await getTransaction.getById(idTransaksi);
+      setData(response.data);
+      setForm((prev) => ({
+        ...prev,
+        NoCard: response.data.NoCard || '',
+        fullname: response.data.fullname || '',
+        namaRek: response.data.namaRek || '',
+        noRek: response.data.noRek || '',
+        licensePlate: response.data.licensePlate || '',
+        paymentFile: response.data.paymentFile || '',
+      }));
+    } catch (error) {
+      console.error('Error fetching transaction data:', error);
+    }
+  };
 
   const fetchUser = async () => {
     const response = await apiUsers.userById();
@@ -77,10 +110,6 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
     }
   };
 
-  const handleNoCardChange = (e) => {
-    setNoCard(e.target.value);
-  };
-
   const currencyFormat = (amount) => {
     return parseInt(amount).toLocaleString('id-ID', {
       style: 'currency',
@@ -89,20 +118,40 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
     });
   };
 
-  const handleNoCardUpdate = async () => {
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleUpdateData = async () => {
+    console.log(form);
     try {
       const formData = new FormData();
-      formData.append('NoCard', noCard);
+      Object.entries(form).forEach(([key, value]) => {
+        if (value && value !== '-') {
+          formData.append(key, value);
+        }
+      });
 
-      await getTransaction.updateById(idTransaksi, formData);
-      setIsSuccess(true);
+      if (paymentFile) {
+        formData.append('paymentFile', paymentFile);
+      }
 
-      setTimeout(() => {
-        setIsSuccess(false);
-        setIsEditingNoCard(false);
-      }, 1000);
+      if (platFile) {
+        formData.append('stnk', platFile);
+      }
+
+      console.log(formData);
+
+      await getTransaction.putDataCustomer(idTransaksi, formData);
+      setIsEditUserName(false);
+      setIsEditRekName(false);
+      setIsEditNoRek(false);
+      setIsEditPlatNo(false);
+      setIsEditBuktiBayar(false);
+      fetchData();
     } catch (error) {
-      console.error('Gagal memperbarui NoCard:', error);
+      console.error('Error updating data:', error);
     }
   };
 
@@ -225,23 +274,89 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                 <div>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-6 border-dashed border p-2 rounded-md">
                     <div className="flex flex-col justify-start items-start">
-                      <h1 className="font-semibold text-sm">Email</h1>
+                      <div className="flex flex-row justify-start items-center gap-x-3">
+                        <h1 className="font-semibold text-sm">Email</h1>
+                      </div>
                       <h1 className="text-slate-400 text-sm">{data.email}</h1>
                     </div>
                     <div className="flex flex-col justify-start items-start">
-                      <h1 className="font-semibold text-sm">User Name</h1>
-                      <h1 className="text-slate-400 text-sm">
-                        {data.fullname}
-                      </h1>
+                      <div className="flex flex-row justify-start items-center gap-x-3">
+                        <h1 className="font-semibold text-sm">User Name</h1>
+                        <TiEdit
+                          className="text-blue-400"
+                          onClick={() => setIsEditUserName(true)}
+                        />
+                      </div>
+                      {isEditUserName ? (
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="text"
+                            name="fullname"
+                            value={form.fullname}
+                            onChange={handleInputChange}
+                            className="text-slate-400 text-sm border p-1 w-32 rounded"
+                          />
+                          <button
+                            onClick={handleUpdateData}
+                            className="text-blue-500 hover:text-blue-700 bg-blue-100 py-2 px-2 rounded-md"
+                          >
+                            <FaRegSave />
+                          </button>
+                          {isSuccess && (
+                            <IoMdCheckmarkCircleOutline className="ml-2 text-green-500" />
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <h1 className="text-slate-400 text-sm">
+                            {data.fullname || 'Full Name Not Found'}
+                          </h1>
+                          {data.fullname && null}
+                        </div>
+                      )}
                     </div>
                     <div className="flex flex-col justify-start items-start">
-                      <h1 className="font-semibold text-sm">
-                        Rekening atas nama
-                      </h1>
-                      <h1 className="text-slate-400 text-sm">{data.namaRek}</h1>
+                      <div className="flex flex-row justify-start items-center gap-x-3">
+                        <h1 className="font-semibold text-sm">
+                          Rekening atas nama
+                        </h1>
+                        <TiEdit
+                          className="text-blue-400"
+                          onClick={() => setIsEditRekName(true)}
+                        />
+                      </div>
+                      {isEditRekName ? (
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="text"
+                            name="namaRek"
+                            value={form.namaRek}
+                            onChange={handleInputChange}
+                            className="text-slate-400 text-sm border p-1 w-32 rounded"
+                          />
+                          <button
+                            onClick={handleUpdateData}
+                            className="text-blue-500 hover:text-blue-700 bg-blue-100 py-2 px-2 rounded-md"
+                          >
+                            <FaRegSave />
+                          </button>
+                          {isSuccess && (
+                            <IoMdCheckmarkCircleOutline className="ml-2 text-green-500" />
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <h1 className="text-slate-400 text-sm">
+                            {form.namaRek || 'Full Name Not Found'}
+                          </h1>
+                          {form.namaRek && null}
+                        </div>
+                      )}
                     </div>
                     <div className="flex flex-col justify-start items-start">
-                      <h1 className="font-semibold text-sm">Nomo Telphone</h1>
+                      <div className="flex flex-row justify-start items-center gap-x-3">
+                        <h1 className="font-semibold text-sm">Nomor Tlp</h1>
+                      </div>
                       <h1 className="text-slate-400 text-sm">
                         {data.phonenumber}
                       </h1>
@@ -254,8 +369,42 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                     </div>
 
                     <div className="flex flex-col justify-start items-start">
-                      <h1 className="font-semibold text-sm">Nomor Rekening</h1>
-                      <h1 className="text-slate-400 text-sm">{data.noRek}</h1>
+                      <div className="flex flex-row justify-start items-center gap-x-3">
+                        <h1 className="font-semibold text-sm">
+                          Nomor Rekening
+                        </h1>
+                        <TiEdit
+                          className="text-blue-400"
+                          onClick={() => setIsEditNoRek(true)}
+                        />
+                      </div>
+                      {isEditNoRek ? (
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="text"
+                            name="noRek"
+                            value={form.noRek}
+                            onChange={handleInputChange}
+                            className="text-slate-400 text-sm border p-1 w-32 rounded"
+                          />
+                          <button
+                            onClick={handleUpdateData}
+                            className="text-blue-500 hover:text-blue-700 bg-blue-100 py-2 px-2 rounded-md"
+                          >
+                            <FaRegSave />
+                          </button>
+                          {isSuccess && (
+                            <IoMdCheckmarkCircleOutline className="ml-2 text-green-500" />
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <h1 className="text-slate-400 text-sm">
+                            {form.noRek || 'Full Name Not Found'}
+                          </h1>
+                          {form.noRek && null}
+                        </div>
+                      )}
                     </div>
 
                     {roleId === 5 ? (
@@ -263,20 +412,27 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                     ) : (
                       <>
                         <div className="flex flex-col justify-start items-start">
-                          <h1 className="font-semibold text-sm">No Card</h1>
+                          <div className="flex flex-row justify-start items-center gap-x-3">
+                            <h1 className="font-semibold text-sm">No Card</h1>
+                            <TiEdit
+                              className="text-blue-400"
+                              onClick={() => setIsEditingNoCard(true)}
+                            />
+                          </div>
                           {isEditingNoCard ? (
                             <div className="flex items-center space-x-2">
                               <input
                                 type="text"
-                                value={noCard}
-                                onChange={handleNoCardChange}
-                                className="text-slate-400 text-sm border p-1 rounded"
+                                name="NoCard"
+                                value={form.NoCard}
+                                onChange={handleInputChange}
+                                className="text-slate-400 text-sm border p-1 w-32 rounded"
                               />
                               <button
-                                onClick={handleNoCardUpdate}
-                                className="text-blue-500 hover:text-blue-700 bg-blue-100 py-1 px-2 rounded-md"
+                                onClick={handleUpdateData}
+                                className="text-blue-500 hover:text-blue-700 bg-blue-100 py-2 px-2 rounded-md"
                               >
-                                Save
+                                <FaRegSave />
                               </button>
                               {isSuccess && (
                                 <IoMdCheckmarkCircleOutline className="ml-2 text-green-500" />
@@ -285,16 +441,9 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                           ) : (
                             <div className="flex items-center space-x-2">
                               <h1 className="text-slate-400 text-sm">
-                                {noCard || 'No Card Available'}
+                                {form.NoCard || 'No Card Available'}
                               </h1>
-                              {noCard && (
-                                <button
-                                  onClick={() => setIsEditingNoCard(true)}
-                                  className="text-blue-500 hover:text-blue-700 bg-blue-100 py-1 px-2 rounded-md"
-                                >
-                                  Edit
-                                </button>
-                              )}
+                              {form.NoCard && null}
                             </div>
                           )}
                         </div>
@@ -310,55 +459,117 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                       <img
                         src={
                           data.stnk
-                            ? `https://apiinject.skyparking.online/uploads/stnk/${data.stnk}`
+                            ? `https://devapi-injectmember.skyparking.online/uploads/stnk/${data.stnk}`
                             : '/public/no-image.png'
                         }
                         alt="STNK"
                         className="w-32 rounded-md shadow-md cursor-pointer"
                         onClick={() =>
                           handleImageClick(
-                            `https://apiinject.skyparking.online/uploads/stnk/${data.stnk}`
+                            `https://devapi-injectmember.skyparking.online/uploads/stnk/${data.stnk}`
                           )
                         }
                       />
                     </div>
 
                     <div className="flex flex-col justify-start items-start p-2">
-                      <h1 className="font-semibold text-sm mb-2">Plat Nomor</h1>
-                      <img
-                        src={
-                          data.licensePlate
-                            ? `https://apiinject.skyparking.online/uploads/licensePlate/${data.licensePlate}`
-                            : '/public/no-image.png'
-                        }
-                        alt="Plat Nomor"
-                        className="w-32 rounded-md shadow-md cursor-pointer"
-                        onClick={() =>
-                          handleImageClick(
-                            `https://apiinject.skyparking.online/uploads/licensePlate/${data.licensePlate}`
-                          )
-                        }
-                      />
+                      <div className="flex flex-row justify-start items-center gap-x-3">
+                        <h1 className="font-semibold text-sm">Plat Nomor</h1>
+                        <TiEdit
+                          className="text-blue-400"
+                          onClick={() => setIsEditPlatNo(true)}
+                        />
+                      </div>
+                      {isEditPlatNo ? (
+                        <form
+                          onSubmit={handleUpdateData}
+                          className="flex items-center space-x-2"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="file"
+                              name="platNo"
+                              onChange={handleStnkFileChange}
+                              className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 mt-2 text-xs"
+                              accept=".jpg, .png, .jpeg"
+                              required
+                            />
+                          </div>
+                          <button
+                            type="submit"
+                            className="text-blue-500 hover:text-blue-700 bg-blue-100 py-3 px-2 rounded-md text-md"
+                          >
+                            <FaRegSave />
+                          </button>
+                        </form>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <img
+                            src={
+                              data.licensePlate
+                                ? `https://devapi-injectmember.skyparking.online/uploads/licensePlate/${data.licensePlate}`
+                                : '/no-image.png'
+                            }
+                            alt="Plat Nomor"
+                            className="w-32 rounded-md shadow-md cursor-pointer"
+                            onClick={() =>
+                              handleImageClick(
+                                `https://devapi-injectmember.skyparking.online/uploads/licensePlate/${data.licensePlate}`
+                              )
+                            }
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex flex-col justify-start items-start p-2">
-                      <h1 className="font-semibold text-sm mb-2">
-                        Bukti Pembayaran
-                      </h1>
-                      <img
-                        src={
-                          data.paymentFile
-                            ? `https://apiinject.skyparking.online/uploads/transfer/${data.paymentFile}`
-                            : '/public/no-image.png'
-                        }
-                        alt="Bukti Pembayaran"
-                        className="w-32 rounded-md shadow-md cursor-pointer"
-                        onClick={() =>
-                          handleImageClick(
-                            `https://apiinject.skyparking.online/uploads/transfer/${data.paymentFile}`
-                          )
-                        }
-                      />
+                      <div className="flex flex-row justify-start items-center gap-x-3">
+                        <h1 className="font-semibold text-sm">Bukti Bayar</h1>
+                        <TiEdit
+                          className="text-blue-400"
+                          onClick={() => setIsEditBuktiBayar(true)}
+                        />
+                      </div>
+                      {isEditBuktiBayar ? (
+                        <form
+                          onSubmit={handleUpdateData}
+                          className="flex items-center space-x-2"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="file"
+                              name="paymentFile"
+                              onChange={handlePaymentFileChange}
+                              className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 mt-2 text-xs"
+                              accept=".jpg, .png, .jpeg"
+                              required
+                            />
+                          </div>
+                          <button
+                            type="submit"
+                            className="text-blue-500 hover:text-blue-700 bg-blue-100 py-3 px-2 rounded-md text-md"
+                          >
+                            <FaRegSave />
+                          </button>
+                        </form>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <img
+                            src={
+                              data.paymentFile
+                                ? `https://devapi-injectmember.skyparking.online/uploads/transfer/${data.paymentFile}`
+                                : '/no-image.png'
+                            }
+                            alt="Plat Nomor"
+                            className="w-32 rounded-md shadow-md cursor-pointer"
+                            onClick={() =>
+                              handleImageClick(
+                                `https://devapi-injectmember.skyparking.online/uploads/transfer/${data.paymentFile}`
+                              )
+                            }
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -480,8 +691,8 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                   type="number"
                   className="mt-2 w-full p-2 border rounded-lg"
                   placeholder="Enter custom nominal"
-                  value={customValue}
-                  onChange={(e) => setCustomValue(e.target.value)} // Set custom nominal value
+                  value={nominalValue}
+                  onChange={(e) => setNominalValue(e.target.value)} // Set custom nominal value
                   required
                 />
               )}
@@ -553,6 +764,6 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
 }
 
 DetailTransaction.propTypes = {
-  idTransaksi: PropTypes.string.isRequired, // Misalnya, idTransaksi adalah string yang wajib diisi
+  idTransaksi: PropTypes.number.isRequired, // Misalnya, idTransaksi adalah string yang wajib diisi
   isClosed: PropTypes.func.isRequired, // Misalnya, isClosed adalah fungsi yang wajib diisi
 };
