@@ -31,6 +31,7 @@ export const apiUsers = {
   userById: async () => {
     try {
       const response = await apiClient.get(`/v01/member/api/auth/user/byId`);
+      console.log(response.data);
       return response.data;
     } catch (error) {
       return error.response.data;

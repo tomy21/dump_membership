@@ -636,8 +636,8 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                     </div>
                     <button
                       onClick={() => {
-                        setShowNominalModal(true); // Trigger the nominal modal
-                        setSelectedResult(result); // Set the selected result for which payment is being updated
+                        setShowNominalModal(true);
+                        setSelectedResult(result);
                       }}
                       className="text-green-500 hover:text-green-700 bg-green-100 px-3 py-2 text-xs"
                     >
@@ -664,7 +664,7 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                handleUpdatePembayaran(selectedResult); // Handle the update with the selected value
+                handleUpdatePembayaran(selectedResult);
               }}
             >
               <label
@@ -692,7 +692,7 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                   className="mt-2 w-full p-2 border rounded-lg"
                   placeholder="Enter custom nominal"
                   value={nominalValue}
-                  onChange={(e) => setNominalValue(e.target.value)} // Set custom nominal value
+                  onChange={(e) => setNominalValue(e.target.value)}
                   required
                 />
               )}

@@ -42,7 +42,8 @@ const Header = () => {
     setLoading(true);
     try {
       const responseRole = await apiUsers.getRoleById();
-      setRoleId(responseRole.data?.RoleId);
+      console.log(responseRole);
+      setRoleId(responseRole.data.RoleId);
     } catch (error) {
       console.error('Error fetching role:', error);
     } finally {

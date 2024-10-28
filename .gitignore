@@ -15,6 +15,7 @@
 # docker
 .docker-compose.yml
 .Dockerfile
+.apiClient.js
 
 # misc
 .DS_Store
