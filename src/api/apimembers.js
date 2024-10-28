@@ -73,6 +73,23 @@ export const getTransaction = {
     }
   },
 
+  putDataCustomer: async (id, data) => {
+    try {
+      const response = await apiBackend.put(
+        `/v1/transaction/updateTransactionData/${id}`,
+        data,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response.data;
+    }
+  },
+
   getLocation: async (page, limit, search) => {
     try {
       const response = await apiBackend.get(

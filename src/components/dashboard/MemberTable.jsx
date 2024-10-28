@@ -448,7 +448,8 @@ const MemberTable = () => {
                                 </button>
                               )}
                             </>
-                          ) : member.statusProgress === 'progress' ? (
+                          ) : member.statusProgress === 'progress' &&
+                            roleId !== 6 ? (
                             <>
                               {isLoading ? (
                                 <FaSpinner className="animate-spin flex justify-center" />
