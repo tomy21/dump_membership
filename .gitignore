@@ -13,8 +13,8 @@
 /build
 
 # docker
-# .docker-compose.yml
-# .Dockerfile
+.docker-compose.yml
+.Dockerfile
 
 # misc
 .DS_Store
