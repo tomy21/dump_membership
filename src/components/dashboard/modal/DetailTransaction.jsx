@@ -176,13 +176,10 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
 
         setIsSuccess(true);
         setIsUpdateSuccess(true);
-
-        setTimeout(() => {
-          setIsSuccess(false);
-          setIsUpdateSuccess(false);
-          setShowSearchModal(false);
-          isClosed();
-        }, 3000);
+        setIsSuccess(false);
+        setIsUpdateSuccess(false);
+        setShowSearchModal(false);
+        isClosed();
       } catch (error) {
         console.error('Gagal memperbarui status pembayaran:', error);
       } finally {
