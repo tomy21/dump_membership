@@ -339,7 +339,7 @@ const MemberTable = () => {
                   />
                 </td>
                 <td className="py-2 px-4 border-b text-sm text-gray-700">
-                  {format(member.createdAt, 'dd MMM yyyy HH:mm')}
+                  {format(member.updatedAt, 'dd MMM yyyy HH:mm')}
                 </td>
                 <td className="py-2 px-4 border-b text-sm text-gray-700">
                   {member.NoRef}
