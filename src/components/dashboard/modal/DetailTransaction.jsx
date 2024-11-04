@@ -680,9 +680,11 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
                 onChange={handleSelectChange}
               >
                 <option value="">-- Select an option --</option>
-                <option value="300000">Rp. 300.000</option>
                 <option value="80000">Rp. 80.000</option>
                 <option value="100000">Rp. 100.000</option>
+                <option value="300000">Rp. 300.000</option>
+                <option value="380000">Rp. 380.000</option>
+                <option value="1140000">Rp. 1.1400.000</option>
                 <option value="custom">Other (Enter manually)</option>
               </select>
 
