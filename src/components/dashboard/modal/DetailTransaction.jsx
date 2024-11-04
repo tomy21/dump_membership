@@ -161,10 +161,7 @@ export default function DetailTransaction({ idTransaksi, isClosed }) {
     if (!nominalValue || nominalValue != parseInt(result.nominal)) {
       setIsLoading(true);
       setIsUpdateError(true);
-      setTimeout(() => {
-        // setIsUpdateError(true);
-        isClosed();
-      }, 3000);
+      isClosed();
     } else {
       try {
         const formData = new FormData();
