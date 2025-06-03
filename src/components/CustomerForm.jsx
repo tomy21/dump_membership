@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import RegistrationForm from './form/RegistrationForm';
+// import RegistrationForm from './form/RegistrationForm';
 import RenewalForm from './form/RenewalForm';
 
 const CustomerForm = () => {
@@ -39,16 +39,16 @@ const CustomerForm = () => {
           <option className="text-sm" value="">
             Pilih Layanan
           </option>
-          <option className="text-sm" value="daftar">
+          {/* <option className="text-sm" value="daftar">
             Daftar Member
-          </option>
+          </option> */}
           <option className="text-sm" value="extend">
             Perpanjang
           </option>
         </select>
       </div>
 
-      {formType === 'daftar' && <RegistrationForm />}
+      {/* {formType === 'daftar' && <RegistrationForm />} */}
       {formType === 'extend' && <RenewalForm />}
     </div>
   );
