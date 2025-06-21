@@ -28,6 +28,11 @@ const LandingPage = () => {
           Sekarang, pendaftaran dan pengelolaan <strong>Membership</strong>{' '}
           SkyParking dilakukan melalui website resmi kami.
         </p>
+        <p className="text-lg mb-6 leading-relaxed">
+          Jika anda sudah menggunakan website lama, di website baru anda tinggal
+          lakukan lupa password lalu, masukan email anda, klik ganti password
+          dan masukan password baru. Setelah itu laogin kembali
+        </p>
 
         <motion.a
           href="https://membership.skyparking.online"
